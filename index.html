@@ -58,27 +58,10 @@
   .bit.b11 { width: 14px; height: 14px; background: #a8c4a4; top: 14%;  left: 70%;  animation: drift2 27s ease-in-out infinite; animation-delay: -6s; }
   .bit.b12 { width: 24px; height: 24px; background: #b6c6d9; top: 64%;  left: 96%;  animation: drift3 33s ease-in-out infinite; animation-delay: -16s; }
 
-  @keyframes drift1 {
-    0%, 100% { transform: translate(0, 0); }
-    25%      { transform: translate(40px, -30px); }
-    50%      { transform: translate(-20px, -50px); }
-    75%      { transform: translate(-50px, 20px); }
-  }
-  @keyframes drift2 {
-    0%, 100% { transform: translate(0, 0); }
-    33%      { transform: translate(-40px, 30px); }
-    66%      { transform: translate(30px, 50px); }
-  }
-  @keyframes drift3 {
-    0%, 100% { transform: translate(0, 0); }
-    20%      { transform: translate(30px, 40px); }
-    40%      { transform: translate(-30px, 20px); }
-    60%      { transform: translate(20px, -40px); }
-    80%      { transform: translate(-20px, -20px); }
-  }
-  @media (prefers-reduced-motion: reduce) {
-    .bit { animation: none !important; }
-  }
+  @keyframes drift1 { 0%, 100% { transform: translate(0, 0); } 25% { transform: translate(40px, -30px); } 50% { transform: translate(-20px, -50px); } 75% { transform: translate(-50px, 20px); } }
+  @keyframes drift2 { 0%, 100% { transform: translate(0, 0); } 33% { transform: translate(-40px, 30px); } 66% { transform: translate(30px, 50px); } }
+  @keyframes drift3 { 0%, 100% { transform: translate(0, 0); } 20% { transform: translate(30px, 40px); } 40% { transform: translate(-30px, 20px); } 60% { transform: translate(20px, -40px); } 80% { transform: translate(-20px, -20px); } }
+  @media (prefers-reduced-motion: reduce) { .bit { animation: none !important; } }
 
   .container {
     position: relative;
@@ -101,16 +84,8 @@
     margin: 0 0 4px;
     letter-spacing: -0.01em;
   }
-  header .role {
-    color: var(--muted);
-    font-size: 16px;
-    margin: 0 0 24px;
-  }
-  header .bio {
-    font-size: 16px;
-    color: var(--ink);
-    margin: 0 0 16px;
-  }
+  header .role { color: var(--muted); font-size: 16px; margin: 0 0 24px; }
+  header .bio { font-size: 16px; color: var(--ink); margin: 0 0 16px; }
   header .links a {
     color: var(--accent);
     text-decoration: none;
@@ -136,44 +111,13 @@
     border-bottom: 1px solid var(--rule);
   }
   .candidate:last-child { border-bottom: none; }
-  .candidate .title {
-    font-size: 17px;
-    font-weight: 600;
-    margin: 0 0 4px;
-  }
-  .candidate .title.clickable {
-    cursor: pointer;
-    user-select: none;
-  }
-  .candidate .title.clickable:hover .profile-code {
-    text-decoration: underline;
-  }
-  .profile-code {
-    color: var(--accent);
-    font-weight: 600;
-  }
-  .candidate .meta {
-    font-size: 14px;
-    color: var(--muted);
-    margin: 0 0 8px;
-  }
-  .candidate .meta span + span::before {
-    content: " · ";
-    margin: 0 4px;
-  }
-  .candidate .summary {
-    font-size: 15px;
-    margin: 0 0 8px;
-    color: #333;
-  }
-  .tags { display: flex; flex-wrap: wrap; gap: 6px; }
-  .tag {
-    font-size: 12px;
-    background: #f1ede4;
-    color: #5a4a30;
-    padding: 2px 8px;
-    border-radius: 4px;
-  }
+  .candidate .title { font-size: 17px; font-weight: 600; margin: 0 0 4px; }
+  .candidate .title.clickable { cursor: pointer; user-select: none; }
+  .candidate .title.clickable:hover .profile-code { text-decoration: underline; }
+  .profile-code { color: var(--accent); font-weight: 600; }
+  .candidate .meta { font-size: 14px; color: var(--muted); margin: 0 0 8px; }
+  .candidate .meta span + span::before { content: " · "; margin: 0 4px; }
+  .candidate .summary { font-size: 15px; margin: 0 0 4px; color: #333; }
   .status {
     display: inline-block;
     font-size: 12px;
@@ -185,6 +129,74 @@
   .status.available { background: #e3f1e3; color: #2d6a2d; }
   .status.notice    { background: #fdf1d6; color: #8a6a1f; }
   .status.exclusive { background: #ede3f1; color: #5a3d8a; }
+  .status.unpublished { background: #f1e3e3; color: #8a2d2d; }
+
+  .empty-section {
+    color: var(--muted);
+    font-size: 14px;
+    font-style: italic;
+    padding: 16px 0;
+    margin: 0;
+  }
+
+  /* Edit-only controls inside Currently Representing */
+  .edit-controls {
+    margin-top: 16px;
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+  .btn {
+    font: inherit;
+    font-size: 13px;
+    padding: 6px 12px;
+    border: 1px solid var(--rule);
+    border-radius: 6px;
+    background: white;
+    color: var(--ink);
+    cursor: pointer;
+  }
+  .btn:hover { border-color: var(--accent); color: var(--accent); }
+  .btn.primary { background: var(--accent); color: white; border-color: var(--accent); }
+  .btn.primary:hover { background: #9c4d22; color: white; }
+  .btn.danger:hover { border-color: #8a2d2d; color: #8a2d2d; }
+
+  /* Add-candidate dialog */
+  .add-form {
+    margin-top: 12px;
+    padding: 16px;
+    background: #faf6ed;
+    border: 1px solid var(--rule);
+    border-radius: 8px;
+  }
+  .add-form h3 {
+    margin: 0 0 12px;
+    font-size: 14px;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--muted);
+  }
+  .add-form .grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+  }
+  .add-form .grid label { display: flex; flex-direction: column; font-size: 11px; text-transform: uppercase; letter-spacing: 0.06em; color: var(--muted); gap: 4px; }
+  .add-form .grid label.wide { grid-column: 1 / -1; }
+  .add-form input[type="text"], .add-form textarea {
+    font: inherit;
+    font-size: 14px;
+    padding: 7px 9px;
+    border: 1px solid var(--rule);
+    border-radius: 5px;
+    background: white;
+    color: var(--ink);
+    text-transform: none;
+    letter-spacing: 0;
+  }
+  .add-form textarea { min-height: 70px; resize: vertical; }
+  .add-form input:focus, .add-form textarea:focus { outline: none; border-color: var(--accent); }
+  .add-form .actions { margin-top: 12px; display: flex; gap: 8px; }
 
   /* Private reveal panel */
   .reveal {
@@ -195,44 +207,30 @@
     border-radius: 6px;
     font-size: 14px;
   }
-  .reveal .empty {
-    margin: 0;
-    color: var(--muted);
-    font-style: italic;
-  }
+  .reveal .empty { margin: 0; color: var(--muted); font-style: italic; }
   .private-info > div { margin-bottom: 4px; }
   .private-info > div:last-child { margin-bottom: 0; }
   .private-info a { color: var(--accent); word-break: break-all; }
 
-  /* Edit form */
-  .edit-grid { display: grid; gap: 10px; }
-  .edit-grid label {
-    display: flex;
-    flex-direction: column;
-    font-size: 11px;
-    text-transform: uppercase;
-    letter-spacing: 0.06em;
-    color: var(--muted);
-    gap: 4px;
-  }
-  .edit-grid input[type="text"] {
+  .priv-edit-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  .priv-edit-grid label { display: flex; flex-direction: column; font-size: 11px; text-transform: uppercase; letter-spacing: 0.06em; color: var(--muted); gap: 4px; }
+  .priv-edit-grid label.wide { grid-column: 1 / -1; }
+  .priv-edit-grid input[type="text"] {
+    font: inherit;
     font-size: 14px;
     padding: 7px 9px;
     border: 1px solid var(--rule);
     border-radius: 5px;
-    font-family: inherit;
     background: white;
     color: var(--ink);
     text-transform: none;
     letter-spacing: 0;
   }
-  .edit-grid input[type="text"]:focus {
-    outline: none;
-    border-color: var(--accent);
-  }
+  .priv-edit-grid input:focus { outline: none; border-color: var(--accent); }
+
   .drop-zone {
     margin-top: 4px;
-    padding: 16px;
+    padding: 14px;
     border: 2px dashed var(--rule);
     border-radius: 6px;
     text-align: center;
@@ -245,15 +243,16 @@
   .drop-zone.drag-over { background: #fdf1e6; border-color: var(--accent); color: var(--accent); }
   .drop-zone.has-file { border-style: solid; color: var(--ink); }
   .btn-clear-resume {
-    background: none;
-    border: none;
-    font-size: 16px;
-    color: var(--muted);
-    cursor: pointer;
-    padding: 0 4px;
-    margin-left: 4px;
+    background: none; border: none; font-size: 16px;
+    color: var(--muted); cursor: pointer; padding: 0 4px; margin-left: 4px;
   }
   .btn-clear-resume:hover { color: var(--accent); }
+
+  .candidate .card-actions {
+    margin-top: 8px;
+    display: flex;
+    gap: 8px;
+  }
 
   .edit-banner {
     position: sticky;
@@ -267,6 +266,41 @@
     text-align: center;
   }
   .edit-banner a { color: #5a4720; text-decoration: underline; }
+
+  /* Publish modal */
+  .modal-backdrop {
+    position: fixed; inset: 0;
+    background: rgba(40, 30, 20, 0.4);
+    display: flex; align-items: center; justify-content: center;
+    z-index: 100;
+  }
+  .modal {
+    background: white;
+    border-radius: 10px;
+    padding: 24px;
+    max-width: 640px;
+    width: 90%;
+    max-height: 80vh;
+    overflow-y: auto;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+  }
+  .modal h3 { margin-top: 0; }
+  .modal p { font-size: 14px; }
+  .modal pre {
+    background: #f4f1ea;
+    padding: 12px;
+    border-radius: 6px;
+    font-size: 12px;
+    line-height: 1.4;
+    overflow-x: auto;
+    max-height: 240px;
+  }
+  .modal .modal-actions {
+    margin-top: 16px;
+    display: flex;
+    justify-content: flex-end;
+    gap: 8px;
+  }
 
   .news-item {
     display: grid;
@@ -285,32 +319,21 @@
     font-size: 13px;
   }
 
-  @media (max-width: 600px) {
-    .container {
-      margin: 16px;
-      padding: 32px 22px 44px;
-      border-radius: 8px;
-    }
+  @media (max-width: 720px) {
+    .container { width: auto; margin: 16px; padding: 32px 22px 44px; border-radius: 8px; }
     header h1 { font-size: 26px; }
     .news-item { grid-template-columns: 1fr; gap: 2px; }
+    .add-form .grid, .priv-edit-grid { grid-template-columns: 1fr; }
   }
 </style>
 </head>
 <body>
 
 <div class="bits" aria-hidden="true">
-  <div class="bit b1"></div>
-  <div class="bit b2"></div>
-  <div class="bit b3"></div>
-  <div class="bit b4"></div>
-  <div class="bit b5"></div>
-  <div class="bit b6"></div>
-  <div class="bit b7"></div>
-  <div class="bit b8"></div>
-  <div class="bit b9"></div>
-  <div class="bit b10"></div>
-  <div class="bit b11"></div>
-  <div class="bit b12"></div>
+  <div class="bit b1"></div><div class="bit b2"></div><div class="bit b3"></div>
+  <div class="bit b4"></div><div class="bit b5"></div><div class="bit b6"></div>
+  <div class="bit b7"></div><div class="bit b8"></div><div class="bit b9"></div>
+  <div class="bit b10"></div><div class="bit b11"></div><div class="bit b12"></div>
 </div>
 
 <div class="container">
@@ -334,117 +357,14 @@
 
   <section>
     <h2>Currently Representing</h2>
-
-    <div class="candidate" data-profile-id="1">
-      <p class="title">
-        <span class="profile-code">Profile 1</span> · Senior ML Engineer · LLM Infrastructure
-        <span class="status available">Available now</span>
-      </p>
-      <p class="meta">
-        <span>9 yrs experience</span>
-        <span>London / Remote (UK)</span>
-        <span>£140k–£165k + equity</span>
-      </p>
-      <p class="summary">
-        Built training infrastructure at a Series C foundation-model lab. Led a team of 4 on distributed
-        training (FSDP, vLLM serving). Looking for a tech-lead role at a smaller, fast-moving team.
-      </p>
-      <div class="tags">
-        <span class="tag">PyTorch</span>
-        <span class="tag">CUDA</span>
-        <span class="tag">vLLM</span>
-        <span class="tag">Distributed training</span>
-        <span class="tag">Tech lead</span>
-      </div>
-      <div class="reveal" hidden></div>
+    <div id="candidates-list"></div>
+    <p id="candidates-empty" class="empty-section">No candidates currently being represented.</p>
+    <div id="edit-controls" class="edit-controls" hidden>
+      <button type="button" class="btn primary" id="btn-add">+ Add candidate</button>
+      <button type="button" class="btn" id="btn-publish">Copy publish snippet</button>
     </div>
-
-    <div class="candidate" data-profile-id="2">
-      <p class="title">
-        <span class="profile-code">Profile 2</span> · Founding GTM / Sales Lead
-        <span class="status notice">2 weeks notice</span>
-      </p>
-      <p class="meta">
-        <span>11 yrs experience</span>
-        <span>NYC / Hybrid</span>
-        <span>$180k base + uncapped OTE</span>
-      </p>
-      <p class="summary">
-        Took a developer-tools startup from $0 → $8M ARR as employee #3. Strong on enterprise sales motion,
-        prior experience hiring out a 6-person AE team. Wants to do it again from scratch.
-      </p>
-      <div class="tags">
-        <span class="tag">Enterprise sales</span>
-        <span class="tag">Founding hire</span>
-        <span class="tag">Dev tools</span>
-        <span class="tag">0→1</span>
-      </div>
-      <div class="reveal" hidden></div>
-    </div>
-
-    <div class="candidate" data-profile-id="3">
-      <p class="title">
-        <span class="profile-code">Profile 3</span> · Staff Backend Engineer · Payments / Fintech
-        <span class="status exclusive">Exclusive</span>
-      </p>
-      <p class="meta">
-        <span>12 yrs experience</span>
-        <span>Berlin / Remote (EU)</span>
-        <span>€130k–€150k</span>
-      </p>
-      <p class="summary">
-        Ex top-tier payments processor, then staff engineer at a Series B fintech leading the payments
-        platform team. Deep expertise in idempotency, ledger design, and reconciliation.
-      </p>
-      <div class="tags">
-        <span class="tag">Go</span>
-        <span class="tag">PostgreSQL</span>
-        <span class="tag">Payments</span>
-        <span class="tag">Ledger systems</span>
-        <span class="tag">Staff IC</span>
-      </div>
-      <div class="reveal" hidden></div>
-    </div>
-
-    <div class="candidate" data-profile-id="4">
-      <p class="title">
-        <span class="profile-code">Profile 4</span> · Research Scientist · Reinforcement Learning
-        <span class="status available">Available now</span>
-      </p>
-      <p class="meta">
-        <span>PhD + 4 yrs industry</span>
-        <span>SF Bay Area</span>
-        <span>$220k–$260k + equity</span>
-      </p>
-      <p class="summary">
-        PhD from a top-tier university, 3 first-author NeurIPS/ICML papers on RLHF and reward modelling.
-        Looking for a role with strong compute access and freedom to publish.
-      </p>
-      <div class="tags">
-        <span class="tag">RLHF</span>
-        <span class="tag">Reward models</span>
-        <span class="tag">Publishing OK</span>
-        <span class="tag">First-author NeurIPS</span>
-      </div>
-      <div class="reveal" hidden></div>
-    </div>
-
-  </section>
-
-  <section>
-    <h2>Recent Placements</h2>
-    <div class="news-item">
-      <span class="date">Apr 2026</span>
-      <span>Placed a <strong>Director of Engineering</strong> at a Series B AI infrastructure startup.</span>
-    </div>
-    <div class="news-item">
-      <span class="date">Mar 2026</span>
-      <span>Placed a <strong>Founding ML Engineer</strong> at a stealth foundation-model lab.</span>
-    </div>
-    <div class="news-item">
-      <span class="date">Feb 2026</span>
-      <span>Closed two <strong>Senior Frontend Engineers</strong> for a YC-backed developer-tools company.</span>
-    </div>
+    <div id="add-form-wrap"></div>
+    <script type="application/json" id="candidates-data">[]</script>
   </section>
 
   <section>
@@ -452,12 +372,11 @@
     <p style="font-size: 15px; color: #333;">
       I work on a small number of mandates at a time so every candidate gets real preparation,
       and every client gets a tight shortlist instead of a flood of CVs. Standard placement fee
-      of [X]% of first-year base, with a [N]-month replacement guarantee.
+      with a replacement guarantee.
     </p>
   </section>
 
   <footer>
-    Last updated [Month Year] ·
     <a href="mailto:you@example.com" style="color: var(--muted);">you@example.com</a>
   </footer>
 
@@ -465,120 +384,182 @@
 
 <script>
 (function () {
-  const KEY = 'recruiter-candidates-v1';
+  const KEY_PRIVATE = 'recruiter-private-v2';   // per-candidate private fields, keyed by candidate id
+  const KEY_DRAFT   = 'recruiter-draft-v2';      // local override of published candidates (recruiter only)
   const editMode = new URLSearchParams(location.search).has('edit');
 
-  const read = () => {
-    try { return JSON.parse(localStorage.getItem(KEY) || '{}'); }
-    catch { return {}; }
+  // ---------- storage helpers ----------
+  const readJSON = (key, fallback) => {
+    try { return JSON.parse(localStorage.getItem(key) || ''); }
+    catch { return fallback; }
   };
-  const write = (data) => localStorage.setItem(KEY, JSON.stringify(data));
-  const getProfile = (id) => read()[id] || {};
-  const setProfile = (id, patch) => {
-    const data = read();
-    data[id] = Object.assign({}, data[id], patch);
-    write(data);
-  };
+  const writeJSON = (key, val) => localStorage.setItem(key, JSON.stringify(val));
 
-  const esc = (s) => String(s == null ? '' : s).replace(/[&<>"']/g, c => (
+  function getPublished() {
+    try { return JSON.parse(document.getElementById('candidates-data').textContent || '[]'); }
+    catch { return []; }
+  }
+
+  // What renders. In edit mode we use the draft (local override). In view mode,
+  // a client uses published; the owner (whose draft exists locally) sees their draft.
+  function getCandidates() {
+    const draft = readJSON(KEY_DRAFT, null);
+    if (draft) return draft;
+    return getPublished();
+  }
+
+  function saveCandidates(arr) {
+    writeJSON(KEY_DRAFT, arr);
+  }
+
+  function getPrivate(id) {
+    const all = readJSON(KEY_PRIVATE, {});
+    return all[id] || {};
+  }
+  function setPrivate(id, patch) {
+    const all = readJSON(KEY_PRIVATE, {});
+    all[id] = Object.assign({}, all[id], patch);
+    writeJSON(KEY_PRIVATE, all);
+  }
+  function deletePrivate(id) {
+    const all = readJSON(KEY_PRIVATE, {});
+    delete all[id];
+    writeJSON(KEY_PRIVATE, all);
+  }
+
+  const esc = s => String(s == null ? '' : s).replace(/[&<>"']/g, c => (
     { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]
   ));
 
+  const newId = () => 'c_' + Date.now().toString(36) + '_' + Math.random().toString(36).slice(2, 7);
+
+  function isPublished(id) {
+    return getPublished().some(c => c.id === id);
+  }
+
+  // ---------- edit banner ----------
   if (editMode) {
     const banner = document.createElement('div');
     banner.className = 'edit-banner';
-    banner.innerHTML = '<strong>Edit mode</strong>. Entries are saved only to <em>this</em> browser. Share <a href="' + location.pathname + '">the plain URL</a> with clients.';
+    banner.innerHTML = '<strong>Edit mode</strong>. Your changes are saved in <em>this</em> browser only. Use "Copy publish snippet" to push live. Share <a href="' + location.pathname + '">the plain URL</a> with clients.';
     document.body.insertBefore(banner, document.body.firstChild);
+    document.getElementById('edit-controls').hidden = false;
   }
 
-  document.querySelectorAll('.candidate').forEach(card => {
-    const id = card.dataset.profileId;
-    if (!id) return;
-    const reveal = card.querySelector('.reveal');
-    const title = card.querySelector('.title');
-    if (!reveal || !title) return;
+  // ---------- render ----------
+  function render() {
+    const list = document.getElementById('candidates-list');
+    const empty = document.getElementById('candidates-empty');
+    list.innerHTML = '';
 
-    function render() {
-      const p = getProfile(id);
-      const hasData = !!(p.name || p.linkedin || p.resumeData || p.notes);
+    const candidates = [...getCandidates()].sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
+    empty.hidden = candidates.length > 0;
+
+    candidates.forEach((c, i) => {
+      const profileNum = i + 1;
+      const card = document.createElement('div');
+      card.className = 'candidate';
+      card.dataset.candidateId = c.id;
+
+      const titleBits = [
+        '<span class="profile-code">Profile ' + profileNum + '</span>',
+        esc(c.role || ''),
+        esc(c.specialism || '')
+      ].filter(Boolean).join(' · ');
+
+      const statusHtml = c.status
+        ? '<span class="status ' + esc(c.status) + '">' + esc(c.statusLabel || c.status) + '</span>'
+        : '';
+      const unpubBadge = (editMode && !isPublished(c.id))
+        ? '<span class="status unpublished" title="Not yet on live site">Unpublished</span>'
+        : '';
+
+      const metaBits = [c.years, c.country, c.citations].filter(Boolean)
+        .map(x => '<span>' + esc(x) + '</span>').join('');
+
+      card.innerHTML =
+        '<p class="title">' + titleBits + statusHtml + unpubBadge + '</p>' +
+        (metaBits ? '<p class="meta">' + metaBits + '</p>' : '') +
+        (c.description ? '<p class="summary">' + esc(c.description) + '</p>' : '') +
+        '<div class="reveal" hidden></div>' +
+        (editMode
+          ? '<div class="card-actions">'
+          +   '<button type="button" class="btn" data-act="edit">Edit private info</button>'
+          +   '<button type="button" class="btn danger" data-act="delete">Delete</button>'
+          + '</div>'
+          : '');
+
+      list.appendChild(card);
+      attachCardHandlers(card, c);
+    });
+  }
+
+  // ---------- per-card interactivity ----------
+  function attachCardHandlers(card, candidate) {
+    const id = candidate.id;
+    const title = card.querySelector('.title');
+    const reveal = card.querySelector('.reveal');
+
+    function renderReveal(forceOpen) {
+      const p = getPrivate(id);
+      const hasData = !!(p.name || p.email || p.linkedin || p.scholar || p.resumeData || p.notes);
 
       if (editMode) {
         reveal.hidden = false;
         reveal.innerHTML =
-          '<div class="edit-grid">' +
-            '<label>Name<input type="text" class="f-name" value="' + esc(p.name) + '" placeholder="e.g. Jane Doe"></label>' +
-            '<label>LinkedIn URL<input type="text" class="f-linkedin" value="' + esc(p.linkedin) + '" placeholder="https://linkedin.com/in/..."></label>' +
-            '<label>Private notes<input type="text" class="f-notes" value="' + esc(p.notes) + '" placeholder="Only visible to you"></label>' +
-            '<div class="drop-zone' + (p.resumeName ? ' has-file' : '') + '">' +
+          '<div class="priv-edit-grid">' +
+            '<label>Name<input type="text" data-f="name" value="' + esc(p.name) + '" placeholder="e.g. Jane Doe"></label>' +
+            '<label>Email<input type="text" data-f="email" value="' + esc(p.email) + '" placeholder="jane@example.com"></label>' +
+            '<label>LinkedIn<input type="text" data-f="linkedin" value="' + esc(p.linkedin) + '" placeholder="https://linkedin.com/in/..."></label>' +
+            '<label>Google Scholar<input type="text" data-f="scholar" value="' + esc(p.scholar) + '" placeholder="https://scholar.google.com/..."></label>' +
+            '<label class="wide">Private notes<input type="text" data-f="notes" value="' + esc(p.notes) + '" placeholder="Only visible to you"></label>' +
+            '<div class="wide drop-zone' + (p.resumeName ? ' has-file' : '') + '">' +
               (p.resumeName
                 ? 'Resume: <strong>' + esc(p.resumeName) + '</strong> <button type="button" class="btn-clear-resume" title="Remove">×</button>'
                 : 'Drop resume here, or click to choose (PDF / DOC)') +
-              '<input type="file" accept=".pdf,.doc,.docx" class="f-file" hidden>' +
+              '<input type="file" accept=".pdf,.doc,.docx" data-f="file" hidden>' +
             '</div>' +
           '</div>';
 
-        reveal.querySelector('.f-name').addEventListener('input', e => setProfile(id, { name: e.target.value }));
-        reveal.querySelector('.f-linkedin').addEventListener('input', e => setProfile(id, { linkedin: e.target.value }));
-        reveal.querySelector('.f-notes').addEventListener('input', e => setProfile(id, { notes: e.target.value }));
-
+        reveal.querySelectorAll('input[data-f]').forEach(inp => {
+          if (inp.type === 'text') inp.addEventListener('input', e => setPrivate(id, { [inp.dataset.f]: e.target.value }));
+        });
         const dz = reveal.querySelector('.drop-zone');
-        const fileInput = reveal.querySelector('.f-file');
+        const fileInput = reveal.querySelector('[data-f="file"]');
         const clearBtn = reveal.querySelector('.btn-clear-resume');
-
-        if (clearBtn) {
-          clearBtn.addEventListener('click', (e) => {
-            e.stopPropagation();
-            setProfile(id, { resumeName: '', resumeData: '' });
-            render();
-          });
-        }
-
-        dz.addEventListener('click', (e) => {
-          if (e.target === clearBtn) return;
-          fileInput.click();
-        });
-        fileInput.addEventListener('change', e => {
-          if (e.target.files[0]) handleFile(e.target.files[0]);
-        });
-        ['dragenter', 'dragover'].forEach(ev =>
-          dz.addEventListener(ev, e => { e.preventDefault(); dz.classList.add('drag-over'); }));
-        ['dragleave', 'drop'].forEach(ev =>
-          dz.addEventListener(ev, e => { e.preventDefault(); dz.classList.remove('drag-over'); }));
-        dz.addEventListener('drop', e => {
-          if (e.dataTransfer.files[0]) handleFile(e.dataTransfer.files[0]);
-        });
+        if (clearBtn) clearBtn.addEventListener('click', e => { e.stopPropagation(); setPrivate(id, { resumeName: '', resumeData: '' }); renderReveal(true); });
+        dz.addEventListener('click', e => { if (e.target === clearBtn) return; fileInput.click(); });
+        fileInput.addEventListener('change', e => { if (e.target.files[0]) handleFile(e.target.files[0]); });
+        ['dragenter', 'dragover'].forEach(ev => dz.addEventListener(ev, e => { e.preventDefault(); dz.classList.add('drag-over'); }));
+        ['dragleave', 'drop'].forEach(ev => dz.addEventListener(ev, e => { e.preventDefault(); dz.classList.remove('drag-over'); }));
+        dz.addEventListener('drop', e => { if (e.dataTransfer.files[0]) handleFile(e.dataTransfer.files[0]); });
 
         function handleFile(file) {
-          if (file.size > 5 * 1024 * 1024) {
-            alert('File too large (max 5MB). Use a smaller file or link to it via LinkedIn.');
-            return;
-          }
-          const reader = new FileReader();
-          reader.onload = () => {
-            setProfile(id, { resumeName: file.name, resumeData: reader.result });
-            render();
-          };
-          reader.readAsDataURL(file);
+          if (file.size > 5 * 1024 * 1024) { alert('File too large (max 5MB).'); return; }
+          const r = new FileReader();
+          r.onload = () => { setPrivate(id, { resumeName: file.name, resumeData: r.result }); renderReveal(true); };
+          r.readAsDataURL(file);
         }
-
       } else {
-        // view mode: only make clickable if this browser has data
-        if (hasData) {
-          title.classList.add('clickable');
-          title.setAttribute('role', 'button');
-          title.setAttribute('tabindex', '0');
-          let html = '<div class="private-info">';
-          if (p.name)     html += '<div><strong>Name:</strong> ' + esc(p.name) + '</div>';
-          if (p.linkedin) html += '<div><strong>LinkedIn:</strong> <a href="' + esc(p.linkedin) + '" target="_blank" rel="noopener">' + esc(p.linkedin) + '</a></div>';
-          if (p.resumeData) html += '<div><strong>Resume:</strong> <a href="' + p.resumeData + '" download="' + esc(p.resumeName || 'resume') + '">' + esc(p.resumeName || 'Download') + '</a></div>';
-          if (p.notes)    html += '<div><strong>Notes:</strong> ' + esc(p.notes) + '</div>';
-          html += '</div>';
-          reveal.innerHTML = html;
-        } else {
+        if (!hasData) {
           title.classList.remove('clickable');
           reveal.innerHTML = '';
           reveal.hidden = true;
+          return;
         }
+        title.classList.add('clickable');
+        title.setAttribute('role', 'button');
+        title.setAttribute('tabindex', '0');
+        let html = '<div class="private-info">';
+        if (p.name)     html += '<div><strong>Name:</strong> ' + esc(p.name) + '</div>';
+        if (p.email)    html += '<div><strong>Email:</strong> <a href="mailto:' + esc(p.email) + '">' + esc(p.email) + '</a></div>';
+        if (p.linkedin) html += '<div><strong>LinkedIn:</strong> <a href="' + esc(p.linkedin) + '" target="_blank" rel="noopener">' + esc(p.linkedin) + '</a></div>';
+        if (p.scholar)  html += '<div><strong>Scholar:</strong> <a href="' + esc(p.scholar) + '" target="_blank" rel="noopener">' + esc(p.scholar) + '</a></div>';
+        if (p.resumeData) html += '<div><strong>Resume:</strong> <a href="' + p.resumeData + '" download="' + esc(p.resumeName || 'resume') + '">' + esc(p.resumeName || 'Download') + '</a></div>';
+        if (p.notes)    html += '<div><strong>Notes:</strong> ' + esc(p.notes) + '</div>';
+        html += '</div>';
+        reveal.innerHTML = html;
+        if (forceOpen) reveal.hidden = false;
       }
     }
 
@@ -587,17 +568,108 @@
       if (!title.classList.contains('clickable')) return;
       reveal.hidden = !reveal.hidden;
     });
-    title.addEventListener('keydown', (e) => {
+    title.addEventListener('keydown', e => {
       if (editMode) return;
       if (!title.classList.contains('clickable')) return;
-      if (e.key === 'Enter' || e.key === ' ') {
-        e.preventDefault();
-        reveal.hidden = !reveal.hidden;
-      }
+      if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); reveal.hidden = !reveal.hidden; }
     });
 
-    render();
-  });
+    if (editMode) {
+      card.querySelector('[data-act="delete"]').addEventListener('click', () => {
+        if (!confirm('Delete this candidate? This removes them from your local view and any private info. Run "Copy publish snippet" again to remove from the live site.')) return;
+        const next = getCandidates().filter(c => c.id !== id);
+        saveCandidates(next);
+        deletePrivate(id);
+        render();
+      });
+      card.querySelector('[data-act="edit"]').addEventListener('click', () => {
+        reveal.hidden = !reveal.hidden;
+      });
+    }
+
+    renderReveal(false);
+  }
+
+  // ---------- add candidate ----------
+  function showAddForm() {
+    const wrap = document.getElementById('add-form-wrap');
+    if (wrap.querySelector('.add-form')) return;
+    wrap.innerHTML =
+      '<div class="add-form">' +
+        '<h3>New candidate</h3>' +
+        '<div class="grid">' +
+          '<label>Role<input type="text" id="f-role" placeholder="Research Scientist"></label>' +
+          '<label>Specialism<input type="text" id="f-specialism" placeholder="Robotics"></label>' +
+          '<label>Years experience<input type="text" id="f-years" placeholder="8 years"></label>' +
+          '<label>Country<input type="text" id="f-country" placeholder="Germany"></label>' +
+          '<label>Citations<input type="text" id="f-citations" placeholder="2,400 citations"></label>' +
+          '<label>Status<input type="text" id="f-status" placeholder="available / notice / exclusive (optional)"></label>' +
+          '<label class="wide">Description<textarea id="f-description" placeholder="PhD in robot learning, ex-DeepMind, looking for an early-stage team..."></textarea></label>' +
+        '</div>' +
+        '<div class="actions">' +
+          '<button type="button" class="btn primary" id="f-save">Save</button>' +
+          '<button type="button" class="btn" id="f-cancel">Cancel</button>' +
+        '</div>' +
+      '</div>';
+
+    document.getElementById('f-save').addEventListener('click', () => {
+      const role = document.getElementById('f-role').value.trim();
+      if (!role) { alert('Role is required.'); return; }
+      const c = {
+        id: newId(),
+        role,
+        specialism: document.getElementById('f-specialism').value.trim(),
+        years: document.getElementById('f-years').value.trim(),
+        country: document.getElementById('f-country').value.trim(),
+        citations: document.getElementById('f-citations').value.trim(),
+        description: document.getElementById('f-description').value.trim(),
+        status: document.getElementById('f-status').value.trim() || undefined,
+        createdAt: Date.now()
+      };
+      const next = [c, ...getCandidates()];
+      saveCandidates(next);
+      wrap.innerHTML = '';
+      render();
+    });
+    document.getElementById('f-cancel').addEventListener('click', () => {
+      wrap.innerHTML = '';
+    });
+  }
+
+  // ---------- publish modal ----------
+  function showPublishModal() {
+    const candidates = getCandidates();
+    const json = JSON.stringify(candidates, null, 2);
+    const backdrop = document.createElement('div');
+    backdrop.className = 'modal-backdrop';
+    backdrop.innerHTML =
+      '<div class="modal">' +
+        '<h3>Copy publish snippet</h3>' +
+        '<p>Paste the JSON below into <code>index.html</code>, replacing the contents of <code>&lt;script id="candidates-data"&gt;...&lt;/script&gt;</code>. Then <code>git commit</code> and <code>git push</code>. Or just send this to Claude in the chat and it will publish for you.</p>' +
+        '<pre id="publish-json">' + esc(json) + '</pre>' +
+        '<div class="modal-actions">' +
+          '<button type="button" class="btn primary" id="btn-copy-json">Copy to clipboard</button>' +
+          '<button type="button" class="btn" id="btn-modal-close">Close</button>' +
+        '</div>' +
+      '</div>';
+    document.body.appendChild(backdrop);
+    document.getElementById('btn-copy-json').addEventListener('click', async () => {
+      try {
+        await navigator.clipboard.writeText(json);
+        document.getElementById('btn-copy-json').textContent = 'Copied ✓';
+      } catch { alert('Could not copy automatically — select the text above and copy manually.'); }
+    });
+    document.getElementById('btn-modal-close').addEventListener('click', () => backdrop.remove());
+    backdrop.addEventListener('click', e => { if (e.target === backdrop) backdrop.remove(); });
+  }
+
+  // ---------- wire edit controls ----------
+  if (editMode) {
+    document.getElementById('btn-add').addEventListener('click', showAddForm);
+    document.getElementById('btn-publish').addEventListener('click', showPublishModal);
+  }
+
+  render();
 })();
 </script>
 
