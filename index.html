@@ -140,12 +140,19 @@
     margin: 0;
   }
 
-  /* Edit-only controls inside Currently Representing */
+  /* Edit-only controls — moved to top of container when in edit mode */
   .edit-controls {
-    margin-top: 16px;
     display: flex;
     gap: 8px;
     flex-wrap: wrap;
+    margin: 0 0 24px;
+    padding: 12px 14px;
+    background: #faf6ed;
+    border: 1px solid var(--rule);
+    border-radius: 8px;
+    position: sticky;
+    top: 50px;
+    z-index: 9;
   }
   .btn {
     font: inherit;
@@ -493,7 +500,16 @@
     banner.className = 'edit-banner';
     banner.innerHTML = '<strong>Edit mode</strong>. Your changes are saved in <em>this</em> browser only. Use "Copy publish snippet" to push live. Share <a href="' + location.pathname + '">the plain URL</a> with clients.';
     document.body.insertBefore(banner, document.body.firstChild);
-    document.getElementById('edit-controls').hidden = false;
+
+    const editControls = document.getElementById('edit-controls');
+    const addFormWrap = document.getElementById('add-form-wrap');
+    editControls.hidden = false;
+
+    // Move edit controls + add-form-wrap to the top of the container so the
+    // "Add candidate" button is always reachable without scrolling down.
+    const container = document.querySelector('.container');
+    container.insertBefore(addFormWrap, container.firstChild);
+    container.insertBefore(editControls, container.firstChild);
   }
 
   // ---------- render ----------
