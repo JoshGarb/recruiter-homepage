@@ -474,7 +474,9 @@
         ? '<span class="status unpublished" title="Not yet on live site">Unpublished</span>'
         : '';
 
-      const metaBits = [c.years, c.country, c.citations].filter(Boolean)
+      const fmtYears = v => !v ? '' : /year|yr|phd|month/i.test(v) ? v : v + ' years experience';
+      const fmtCites = v => !v ? '' : /citation/i.test(v) ? v : v + ' citations';
+      const metaBits = [fmtYears(c.years), c.country, fmtCites(c.citations)].filter(Boolean)
         .map(x => '<span>' + esc(x) + '</span>').join('');
 
       card.innerHTML =
@@ -600,9 +602,9 @@
         '<div class="grid">' +
           '<label>Role<input type="text" id="f-role" placeholder="Research Scientist"></label>' +
           '<label>Specialism<input type="text" id="f-specialism" placeholder="Robotics"></label>' +
-          '<label>Years experience<input type="text" id="f-years" placeholder="8 years"></label>' +
+          '<label>Years experience<input type="text" id="f-years" placeholder="just the number, e.g. 8"></label>' +
           '<label>Country<input type="text" id="f-country" placeholder="Germany"></label>' +
-          '<label>Citations<input type="text" id="f-citations" placeholder="2,400 citations"></label>' +
+          '<label>Citations<input type="text" id="f-citations" placeholder="just the number, e.g. 2400"></label>' +
           '<label>Status<input type="text" id="f-status" placeholder="available / notice / exclusive (optional)"></label>' +
           '<label class="wide">Description<textarea id="f-description" placeholder="PhD in robot learning, ex-DeepMind, looking for an early-stage team..."></textarea></label>' +
         '</div>' +
