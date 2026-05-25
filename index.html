@@ -25,7 +25,9 @@
     min-height: 100vh;
   }
   body {
-    background-color: #f6f3ed;
+    background:
+      linear-gradient(135deg, #f0ece2 0%, #e6e9ee 55%, #dde4ea 100%);
+    background-attachment: fixed;
     overflow-x: hidden;
     position: relative;
   }
@@ -81,9 +83,10 @@
   .container {
     position: relative;
     z-index: 1;
-    max-width: 725px;
+    max-width: 1000px;
+    width: min(67vw, 1000px);
     margin: 64px auto;
-    padding: 48px 56px 60px;
+    padding: 56px 72px 72px;
     background: var(--card);
     border-radius: 14px;
     box-shadow:
