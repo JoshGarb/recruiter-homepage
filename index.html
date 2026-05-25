@@ -692,37 +692,65 @@
   function parseResume(text) {
     const out = { name: '', email: '', linkedin: '', scholar: '' };
 
-    const emailMatch = text.match(/[\w.+-]+@[\w-]+\.[\w.-]+/);
-    if (emailMatch) out.email = emailMatch[0];
+    // EMAIL — first plausible match, prefer non-obvious-fake patterns
+    const emails = text.match(/[A-Za-z0-9._+-]+@[A-Za-z0-9-]+\.[A-Za-z0-9.-]{2,}/g) || [];
+    if (emails.length) {
+      out.email = emails.find(e => !/example\.com|test@/i.test(e)) || emails[0];
+    }
 
-    const linkedinMatch = text.match(/(?:https?:\/\/)?(?:www\.)?linkedin\.com\/in\/[A-Za-z0-9_-]+\/?/i);
-    if (linkedinMatch) {
-      let u = linkedinMatch[0].replace(/\/$/, '');
+    // LINKEDIN — full URL OR plain reference like "LinkedIn: handle"
+    let li = text.match(/(?:https?:\/\/)?(?:[a-z]{2,3}\.)?linkedin\.com\/in\/[A-Za-z0-9_.-]+/i);
+    if (li) {
+      let u = li[0].replace(/[\/.,;]+$/, '');
       if (!/^https?:\/\//i.test(u)) u = 'https://' + u;
       out.linkedin = u;
+    } else {
+      const liPlain = text.match(/linkedin[:\s]+\/?(?:in\/)?([A-Za-z0-9_-]{3,})/i);
+      if (liPlain) out.linkedin = 'https://www.linkedin.com/in/' + liPlain[1].replace(/\/$/, '');
     }
 
-    const scholarMatch =
-      text.match(/(?:https?:\/\/)?scholar\.google\.[A-Za-z.]+\/citations\?[^\s)]+/i) ||
-      text.match(/(?:https?:\/\/)?scholar\.google\.[A-Za-z.]+\/[A-Za-z0-9_?=&%-]+/i);
-    if (scholarMatch) {
-      let u = scholarMatch[0].replace(/[.,;]$/, '');
+    // SCHOLAR — full citations URL OR profile fragment OR plain user param
+    let sc =
+      text.match(/(?:https?:\/\/)?scholar\.google\.[A-Za-z.]+\/citations\?[^\s)\],"]+/i) ||
+      text.match(/(?:https?:\/\/)?scholar\.google\.[A-Za-z.]+\/[A-Za-z0-9?=&%_-]+/i);
+    if (sc) {
+      let u = sc[0].replace(/[.,;]+$/, '');
       if (!/^https?:\/\//i.test(u)) u = 'https://' + u;
       out.scholar = u;
+    } else {
+      // catches things like "Scholar: hZtOnecAAAAJ" or "Google Scholar: ..."
+      const scPlain = text.match(/(?:Google\s+)?Scholar[:\s]+([A-Za-z0-9_-]{8,})/i);
+      if (scPlain) out.scholar = 'https://scholar.google.com/citations?user=' + scPlain[1];
     }
 
-    // Name heuristic: first line near the top with 2-4 capitalised words
-    const lines = text.split(/[\n\r]+/).map(l => l.trim()).filter(Boolean);
-    for (const line of lines.slice(0, 12)) {
-      if (/^(curriculum|resume|cv|page|date|contact|profile)\b/i.test(line)) continue;
-      const words = line.split(/\s+/);
-      if (words.length >= 2 && words.length <= 4 && words.every(w => /^[A-Z][a-zA-Z'’.-]+$/.test(w))) {
-        out.name = words.join(' ');
-        break;
-      }
-    }
+    // NAME — multi-strategy heuristic
+    out.name = extractName(text);
 
     return out;
+  }
+
+  function extractName(text) {
+    const lines = text.split(/[\n\r]+/).map(l => l.trim()).filter(Boolean);
+    const HEADER = /^(curriculum vitae|resume|cv|page \d|contact|profile|portfolio|references|summary|education|experience|skills|publications|address|email|phone|mobile|website|projects|work history|objective)\b/i;
+    const NAME_WORD = /^(?:[A-ZÀ-ÝŸ][a-zA-Zà-ÿ'’-]+\.?|[A-ZÀ-ÝŸ]{2,}|[A-ZÀ-ÝŸ]\.|Dr\.?|Mr\.?|Mrs\.?|Ms\.?|Prof\.?|PhD\.?)$/;
+
+    for (let i = 0; i < Math.min(25, lines.length); i++) {
+      const line = lines[i];
+      if (line.length > 60) continue;
+      if (/@|https?:|www\.|\d{3,}/i.test(line)) continue;
+      if (HEADER.test(line)) continue;
+
+      const words = line.split(/[\s,]+/).filter(Boolean);
+      if (words.length < 2 || words.length > 5) continue;
+
+      if (words.every(w => NAME_WORD.test(w))) {
+        // Reject if obviously a section heading (all words are common english words)
+        const common = /^(About|Profile|Summary|Skills|Languages|Education|Experience|Work|Contact|References)$/i;
+        if (words.some(w => common.test(w.replace(/\.$/, '')))) continue;
+        return words.join(' ');
+      }
+    }
+    return '';
   }
 
   // ---------- add candidate ----------
