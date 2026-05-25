@@ -592,13 +592,91 @@
     renderReveal(false);
   }
 
+  // ---------- resume parsing ----------
+  let pdfJsLoading = null;
+  function loadPdfJs() {
+    if (window.pdfjsLib) return Promise.resolve();
+    if (pdfJsLoading) return pdfJsLoading;
+    pdfJsLoading = new Promise((resolve, reject) => {
+      const s = document.createElement('script');
+      s.src = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js';
+      s.onload = () => {
+        window.pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+        resolve();
+      };
+      s.onerror = () => { pdfJsLoading = null; reject(new Error('PDF.js failed to load')); };
+      document.head.appendChild(s);
+    });
+    return pdfJsLoading;
+  }
+
+  async function extractResumeText(file) {
+    await loadPdfJs();
+    const buf = await file.arrayBuffer();
+    const pdf = await window.pdfjsLib.getDocument({ data: buf }).promise;
+    let text = '';
+    for (let i = 1; i <= pdf.numPages; i++) {
+      const page = await pdf.getPage(i);
+      const content = await page.getTextContent();
+      text += content.items.map(it => it.str).join(' ') + '\n';
+    }
+    return text;
+  }
+
+  function parseResume(text) {
+    const out = { name: '', email: '', linkedin: '', scholar: '' };
+
+    const emailMatch = text.match(/[\w.+-]+@[\w-]+\.[\w.-]+/);
+    if (emailMatch) out.email = emailMatch[0];
+
+    const linkedinMatch = text.match(/(?:https?:\/\/)?(?:www\.)?linkedin\.com\/in\/[A-Za-z0-9_-]+\/?/i);
+    if (linkedinMatch) {
+      let u = linkedinMatch[0].replace(/\/$/, '');
+      if (!/^https?:\/\//i.test(u)) u = 'https://' + u;
+      out.linkedin = u;
+    }
+
+    const scholarMatch =
+      text.match(/(?:https?:\/\/)?scholar\.google\.[A-Za-z.]+\/citations\?[^\s)]+/i) ||
+      text.match(/(?:https?:\/\/)?scholar\.google\.[A-Za-z.]+\/[A-Za-z0-9_?=&%-]+/i);
+    if (scholarMatch) {
+      let u = scholarMatch[0].replace(/[.,;]$/, '');
+      if (!/^https?:\/\//i.test(u)) u = 'https://' + u;
+      out.scholar = u;
+    }
+
+    // Name heuristic: first line near the top with 2-4 capitalised words
+    const lines = text.split(/[\n\r]+/).map(l => l.trim()).filter(Boolean);
+    for (const line of lines.slice(0, 12)) {
+      if (/^(curriculum|resume|cv|page|date|contact|profile)\b/i.test(line)) continue;
+      const words = line.split(/\s+/);
+      if (words.length >= 2 && words.length <= 4 && words.every(w => /^[A-Z][a-zA-Z'’.-]+$/.test(w))) {
+        out.name = words.join(' ');
+        break;
+      }
+    }
+
+    return out;
+  }
+
   // ---------- add candidate ----------
   function showAddForm() {
     const wrap = document.getElementById('add-form-wrap');
     if (wrap.querySelector('.add-form')) return;
+
+    let resumeName = '';
+    let resumeData = '';
+
     wrap.innerHTML =
       '<div class="add-form">' +
-        '<h3>New candidate · public info (shown to clients)</h3>' +
+        '<h3>New candidate</h3>' +
+        '<div class="drop-zone" id="add-resume-zone" style="margin-bottom: 6px;">' +
+          'Drop resume PDF here to auto-fill name / email / LinkedIn / Scholar, or click to choose' +
+          '<input type="file" accept=".pdf" id="add-resume-input" hidden>' +
+        '</div>' +
+        '<p id="extract-status" style="font-size:13px; color: var(--muted); margin: 0 0 16px;">Optional. You can also fill everything manually.</p>' +
+
+        '<h3 style="margin-top:0">Public info (shown to clients)</h3>' +
         '<div class="grid">' +
           '<label>Role<input type="text" id="f-role" placeholder="Research Scientist"></label>' +
           '<label>Specialism<input type="text" id="f-specialism" placeholder="Robotics"></label>' +
@@ -608,7 +686,8 @@
           '<label>Status<input type="text" id="f-status" placeholder="available / notice / exclusive (optional)"></label>' +
           '<label class="wide">Description<textarea id="f-description" placeholder="PhD in robot learning, ex-DeepMind, looking for an early-stage team..."></textarea></label>' +
         '</div>' +
-        '<h3 style="margin-top:16px">Private info (only visible to you)</h3>' +
+
+        '<h3 style="margin-top:16px">Private info (only visible to you · auto-filled from resume where possible)</h3>' +
         '<div class="grid">' +
           '<label>Name<input type="text" id="f-name" placeholder="e.g. Jane Doe"></label>' +
           '<label>Email<input type="text" id="f-email" placeholder="jane@example.com"></label>' +
@@ -616,11 +695,59 @@
           '<label>Google Scholar<input type="text" id="f-scholar" placeholder="https://scholar.google.com/..."></label>' +
           '<label class="wide">Private notes<input type="text" id="f-notes" placeholder="Anything you want to remember"></label>' +
         '</div>' +
+
         '<div class="actions">' +
           '<button type="button" class="btn primary" id="f-save">Save</button>' +
           '<button type="button" class="btn" id="f-cancel">Cancel</button>' +
         '</div>' +
       '</div>';
+
+    // Resume drop-zone wiring
+    const zone = document.getElementById('add-resume-zone');
+    const fileInput = document.getElementById('add-resume-input');
+    const status = document.getElementById('extract-status');
+
+    zone.addEventListener('click', () => fileInput.click());
+    ['dragenter', 'dragover'].forEach(ev => zone.addEventListener(ev, e => { e.preventDefault(); zone.classList.add('drag-over'); }));
+    ['dragleave', 'drop'].forEach(ev => zone.addEventListener(ev, e => { e.preventDefault(); zone.classList.remove('drag-over'); }));
+    zone.addEventListener('drop', e => { if (e.dataTransfer.files[0]) handleResume(e.dataTransfer.files[0]); });
+    fileInput.addEventListener('change', e => { if (e.target.files[0]) handleResume(e.target.files[0]); });
+
+    async function handleResume(file) {
+      if (!/\.pdf$/i.test(file.name)) { alert('Please drop a PDF file.'); return; }
+      if (file.size > 5 * 1024 * 1024) { alert('File too large (max 5MB).'); return; }
+
+      // Save raw file as data URL so we can attach to the candidate on Save
+      const reader = new FileReader();
+      reader.onload = () => { resumeData = reader.result; resumeName = file.name; };
+      reader.readAsDataURL(file);
+
+      zone.classList.add('has-file');
+      zone.innerHTML = 'Resume loaded: <strong>' + esc(file.name) + '</strong>';
+      status.textContent = 'Extracting info from PDF…';
+
+      try {
+        const text = await extractResumeText(file);
+        const parsed = parseResume(text);
+
+        const setIfEmpty = (id, val) => {
+          const el = document.getElementById(id);
+          if (val && !el.value) el.value = val;
+        };
+        setIfEmpty('f-name', parsed.name);
+        setIfEmpty('f-email', parsed.email);
+        setIfEmpty('f-linkedin', parsed.linkedin);
+        setIfEmpty('f-scholar', parsed.scholar);
+
+        const filled = ['name','email','linkedin','scholar'].filter(k => parsed[k]);
+        status.textContent = filled.length
+          ? '✓ Auto-filled: ' + filled.join(', ') + '. Review below and edit if anything looks off.'
+          : '⚠ Could not auto-extract anything (PDF may be a scanned image). Fill the private fields manually below.';
+      } catch (err) {
+        console.error('Resume parse failed', err);
+        status.textContent = '⚠ Could not parse the PDF. Fill the private fields manually below.';
+      }
+    }
 
     document.getElementById('f-save').addEventListener('click', () => {
       const role = document.getElementById('f-role').value.trim();
@@ -643,9 +770,11 @@
         scholar: document.getElementById('f-scholar').value.trim(),
         notes: document.getElementById('f-notes').value.trim()
       };
+      if (resumeData) { priv.resumeName = resumeName; priv.resumeData = resumeData; }
+
       const next = [c, ...getCandidates()];
       saveCandidates(next);
-      if (priv.name || priv.email || priv.linkedin || priv.scholar || priv.notes) {
+      if (Object.values(priv).some(v => v)) {
         setPrivate(c.id, priv);
       }
       wrap.innerHTML = '';
