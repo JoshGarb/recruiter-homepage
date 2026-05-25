@@ -126,10 +126,11 @@
     font-weight: 500;
     margin-left: 6px;
   }
-  .status.available { background: #e3f1e3; color: #2d6a2d; }
-  .status.notice    { background: #fdf1d6; color: #8a6a1f; }
-  .status.exclusive { background: #ede3f1; color: #5a3d8a; }
-  .status.unpublished { background: #f1e3e3; color: #8a2d2d; }
+  .status.available    { background: #e3f1e3; color: #2d6a2d; }
+  .status.notice       { background: #fdf1d6; color: #8a6a1f; }
+  .status.exclusive    { background: #ede3f1; color: #5a3d8a; }
+  .status.interviewing { background: #e3ecf1; color: #2d5a8a; }
+  .status.unpublished  { background: #f1e3e3; color: #8a2d2d; }
 
   .empty-section {
     color: var(--muted);
@@ -364,7 +365,20 @@
       <button type="button" class="btn" id="btn-publish">Copy publish snippet</button>
     </div>
     <div id="add-form-wrap"></div>
-    <script type="application/json" id="candidates-data">[]</script>
+    <script type="application/json" id="candidates-data">[
+  {
+    "id": "c_mpl60pyb_xzy70",
+    "role": "Research Scientist",
+    "specialism": "Robotics",
+    "years": "5",
+    "country": "United States",
+    "citations": "29000",
+    "description": "He is an expert in physical AI and robot foundation models, specializing in simulation-based large-scale data generation, 3D world models, and 3D perception. His pioneer work includes co-authoring highly influential architectures for 3D point cloud processing and shape semantics. Most recently, he has built frontier generative technologies, focusing specifically on video generation and video understanding for advanced robotic manipulation.",
+    "status": "interviewing",
+    "statusLabel": "Interviewing",
+    "createdAt": 1779711069539
+  }
+]</script>
   </section>
 
   <section>
