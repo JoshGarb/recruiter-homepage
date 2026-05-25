@@ -925,6 +925,9 @@
       const text = await putResp.text();
       throw new Error('GitHub PUT failed: ' + putResp.status + ' ' + text.slice(0, 200));
     }
+    // Update the in-DOM snapshot so isPublished() reflects reality immediately
+    // (the live GitHub Pages site will catch up in ~30 seconds via the actual rebuild)
+    document.getElementById('candidates-data').textContent = '\n' + json + '\n';
     return true;
   }
 
