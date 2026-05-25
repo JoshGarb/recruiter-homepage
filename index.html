@@ -598,7 +598,7 @@
     if (wrap.querySelector('.add-form')) return;
     wrap.innerHTML =
       '<div class="add-form">' +
-        '<h3>New candidate</h3>' +
+        '<h3>New candidate · public info (shown to clients)</h3>' +
         '<div class="grid">' +
           '<label>Role<input type="text" id="f-role" placeholder="Research Scientist"></label>' +
           '<label>Specialism<input type="text" id="f-specialism" placeholder="Robotics"></label>' +
@@ -607,6 +607,14 @@
           '<label>Citations<input type="text" id="f-citations" placeholder="just the number, e.g. 2400"></label>' +
           '<label>Status<input type="text" id="f-status" placeholder="available / notice / exclusive (optional)"></label>' +
           '<label class="wide">Description<textarea id="f-description" placeholder="PhD in robot learning, ex-DeepMind, looking for an early-stage team..."></textarea></label>' +
+        '</div>' +
+        '<h3 style="margin-top:16px">Private info (only visible to you)</h3>' +
+        '<div class="grid">' +
+          '<label>Name<input type="text" id="f-name" placeholder="e.g. Jane Doe"></label>' +
+          '<label>Email<input type="text" id="f-email" placeholder="jane@example.com"></label>' +
+          '<label>LinkedIn<input type="text" id="f-linkedin" placeholder="https://linkedin.com/in/..."></label>' +
+          '<label>Google Scholar<input type="text" id="f-scholar" placeholder="https://scholar.google.com/..."></label>' +
+          '<label class="wide">Private notes<input type="text" id="f-notes" placeholder="Anything you want to remember"></label>' +
         '</div>' +
         '<div class="actions">' +
           '<button type="button" class="btn primary" id="f-save">Save</button>' +
@@ -628,8 +636,18 @@
         status: document.getElementById('f-status').value.trim() || undefined,
         createdAt: Date.now()
       };
+      const priv = {
+        name: document.getElementById('f-name').value.trim(),
+        email: document.getElementById('f-email').value.trim(),
+        linkedin: document.getElementById('f-linkedin').value.trim(),
+        scholar: document.getElementById('f-scholar').value.trim(),
+        notes: document.getElementById('f-notes').value.trim()
+      };
       const next = [c, ...getCandidates()];
       saveCandidates(next);
+      if (priv.name || priv.email || priv.linkedin || priv.scholar || priv.notes) {
+        setPrivate(c.id, priv);
+      }
       wrap.innerHTML = '';
       render();
     });
