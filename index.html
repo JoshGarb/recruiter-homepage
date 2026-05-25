@@ -362,6 +362,8 @@
     <p id="candidates-empty" class="empty-section">No candidates currently being represented.</p>
     <div id="edit-controls" class="edit-controls" hidden>
       <button type="button" class="btn primary" id="btn-add">+ Add candidate</button>
+      <button type="button" class="btn" id="btn-auto-setup">Setup auto-publish</button>
+      <button type="button" class="btn" id="btn-publish-all">Publish all now</button>
       <button type="button" class="btn" id="btn-publish">Copy publish snippet</button>
     </div>
     <div id="add-form-wrap"></div>
@@ -793,6 +795,7 @@
       }
       wrap.innerHTML = '';
       render();
+      autoPublishIfReady();
     });
     document.getElementById('f-cancel').addEventListener('click', () => {
       wrap.innerHTML = '';
@@ -826,10 +829,159 @@
     backdrop.addEventListener('click', e => { if (e.target === backdrop) backdrop.remove(); });
   }
 
+  // ---------- auto-publish to GitHub ----------
+  const GH_OWNER = 'JoshGarb';
+  const GH_REPO  = 'recruiter-homepage';
+  const GH_PATH  = 'index.html';
+  const KEY_PAT  = 'gh-pat-v1';
+
+  function getPat() { return localStorage.getItem(KEY_PAT) || ''; }
+  function setPat(t) { localStorage.setItem(KEY_PAT, t); }
+  function clearPat() { localStorage.removeItem(KEY_PAT); }
+
+  // Toast UI
+  function toast(msg, kind) {
+    let t = document.getElementById('toast');
+    if (!t) {
+      t = document.createElement('div');
+      t.id = 'toast';
+      t.style.cssText = 'position:fixed;bottom:24px;right:24px;background:#1a1a1a;color:white;padding:10px 16px;border-radius:8px;font-size:14px;z-index:200;box-shadow:0 6px 20px rgba(0,0,0,0.2);max-width:340px;';
+      document.body.appendChild(t);
+    }
+    t.style.background = kind === 'err' ? '#8a2d2d' : kind === 'ok' ? '#2d6a2d' : '#1a1a1a';
+    t.textContent = msg;
+    t.style.display = 'block';
+    clearTimeout(toast._timer);
+    toast._timer = setTimeout(() => { t.style.display = 'none'; }, 4500);
+  }
+
+  async function ghPublishCandidates(candidates) {
+    const token = getPat();
+    if (!token) throw new Error('No GitHub token. Click "Setup auto-publish".');
+
+    const api = 'https://api.github.com/repos/' + GH_OWNER + '/' + GH_REPO + '/contents/' + GH_PATH;
+    const headers = { 'Authorization': 'Bearer ' + token, 'Accept': 'application/vnd.github+json' };
+
+    const getResp = await fetch(api, { headers });
+    if (!getResp.ok) {
+      if (getResp.status === 401) throw new Error('Token rejected. Setup auto-publish again with a valid token.');
+      throw new Error('GitHub GET failed: ' + getResp.status);
+    }
+    const meta = await getResp.json();
+    const decoded = decodeURIComponent(escape(atob(meta.content.replace(/\s/g, ''))));
+
+    const json = JSON.stringify(candidates, null, 2);
+    const updated = decoded.replace(
+      /(<script type="application\/json" id="candidates-data">)[\s\S]*?(<\/script>)/,
+      function(_m, a, b) { return a + '\n' + json + '\n' + b; }
+    );
+    if (updated === decoded) throw new Error('Could not locate candidates-data block.');
+
+    const newContent = btoa(unescape(encodeURIComponent(updated)));
+    const putResp = await fetch(api, {
+      method: 'PUT',
+      headers: Object.assign({}, headers, { 'Content-Type': 'application/json' }),
+      body: JSON.stringify({
+        message: 'Auto-publish candidates update',
+        content: newContent,
+        sha: meta.sha
+      })
+    });
+    if (!putResp.ok) {
+      const text = await putResp.text();
+      throw new Error('GitHub PUT failed: ' + putResp.status + ' ' + text.slice(0, 200));
+    }
+    return true;
+  }
+
+  async function autoPublishIfReady() {
+    if (!getPat()) return; // no token, skip silently
+    toast('Publishing to live site…');
+    try {
+      await ghPublishCandidates(getCandidates());
+      toast('✓ Published. Live in ~30 seconds.', 'ok');
+      setTimeout(render, 100); // re-render to drop "Unpublished" badges (after refresh shows live)
+    } catch (err) {
+      console.error('Auto-publish failed', err);
+      toast('Publish failed: ' + err.message, 'err');
+    }
+  }
+
+  function showAutoSetupModal() {
+    const hasToken = !!getPat();
+    const backdrop = document.createElement('div');
+    backdrop.className = 'modal-backdrop';
+    backdrop.innerHTML =
+      '<div class="modal">' +
+        '<h3>' + (hasToken ? 'Auto-publish is ON' : 'Setup auto-publish') + '</h3>' +
+        (hasToken
+          ? '<p>A GitHub access token is saved in this browser. Every Save in the Add form will push to the live site automatically. Click "Publish all now" any time to force-sync.</p>' +
+            '<div class="modal-actions">' +
+              '<button type="button" class="btn danger" id="btn-clear-pat">Remove token</button>' +
+              '<button type="button" class="btn primary" id="btn-modal-close">Close</button>' +
+            '</div>'
+          : '<p style="font-size:14px;line-height:1.5;">' +
+              '<strong>Step 1:</strong> Open <a href="https://github.com/settings/personal-access-tokens/new" target="_blank" rel="noopener">github.com/settings/personal-access-tokens/new</a><br>' +
+              '<strong>Step 2:</strong> Token name: <code>recruiter-homepage</code>. Resource owner: <code>JoshGarb</code>. Repository access: <em>Only select repositories</em> → <code>recruiter-homepage</code>. Permissions: Repository → <em>Contents</em> → <strong>Read and write</strong>.<br>' +
+              '<strong>Step 3:</strong> Click "Generate token" at the bottom, copy the token (starts with <code>github_pat_</code>), paste it below.' +
+            '</p>' +
+            '<input type="text" id="pat-input" placeholder="github_pat_..." style="width:100%;font:inherit;font-size:13px;padding:8px;border:1px solid #ddd;border-radius:5px;font-family:monospace;">' +
+            '<p style="font-size:12px;color:#888;margin-top:8px;">The token is stored only in this browser. Never published. You can revoke it anytime in your GitHub settings.</p>' +
+            '<div class="modal-actions">' +
+              '<button type="button" class="btn" id="btn-modal-close">Cancel</button>' +
+              '<button type="button" class="btn primary" id="btn-save-pat">Save & publish now</button>' +
+            '</div>'
+        ) +
+      '</div>';
+    document.body.appendChild(backdrop);
+
+    document.getElementById('btn-modal-close').addEventListener('click', () => backdrop.remove());
+    backdrop.addEventListener('click', e => { if (e.target === backdrop) backdrop.remove(); });
+
+    if (hasToken) {
+      document.getElementById('btn-clear-pat').addEventListener('click', () => {
+        if (!confirm('Remove the saved token? Auto-publish will stop until you set it up again.')) return;
+        clearPat();
+        backdrop.remove();
+        toast('Token removed.');
+      });
+    } else {
+      document.getElementById('btn-save-pat').addEventListener('click', async () => {
+        const t = document.getElementById('pat-input').value.trim();
+        if (!t) { alert('Paste a token first.'); return; }
+        setPat(t);
+        backdrop.remove();
+        toast('Token saved. Publishing now…');
+        try {
+          await ghPublishCandidates(getCandidates());
+          toast('✓ Published. Live in ~30 seconds.', 'ok');
+        } catch (err) {
+          toast('Publish failed: ' + err.message, 'err');
+        }
+      });
+    }
+  }
+
+  async function publishAllNow() {
+    if (!getPat()) {
+      showAutoSetupModal();
+      return;
+    }
+    toast('Publishing all candidates…');
+    try {
+      await ghPublishCandidates(getCandidates());
+      toast('✓ Published. Live in ~30 seconds.', 'ok');
+    } catch (err) {
+      toast('Publish failed: ' + err.message, 'err');
+    }
+  }
+
   // ---------- wire edit controls ----------
   if (editMode) {
     document.getElementById('btn-add').addEventListener('click', showAddForm);
     document.getElementById('btn-publish').addEventListener('click', showPublishModal);
+    document.getElementById('btn-auto-setup').addEventListener('click', showAutoSetupModal);
+    document.getElementById('btn-publish-all').addEventListener('click', publishAllNow);
   }
 
   render();
