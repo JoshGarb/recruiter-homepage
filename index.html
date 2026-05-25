@@ -1,0 +1,599 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex, nofollow">
+<title>[Your Name] — Talent Partner</title>
+<style>
+  :root {
+    --ink: #1a1a1a;
+    --muted: #6b6b6b;
+    --rule: #e8e4d8;
+    --accent: #b85c2a;
+    --card: #fdfcf9;
+  }
+  * { box-sizing: border-box; }
+  html, body {
+    margin: 0;
+    padding: 0;
+    color: var(--ink);
+    font-family: -apple-system, BlinkMacSystemFont, "Helvetica Neue", "Segoe UI", sans-serif;
+    font-size: 17px;
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+    min-height: 100vh;
+  }
+  body {
+    background-color: #f6f3ed;
+    overflow-x: hidden;
+    position: relative;
+  }
+
+  .bits {
+    position: fixed;
+    inset: 0;
+    z-index: 0;
+    pointer-events: none;
+    overflow: hidden;
+  }
+  .bit {
+    position: absolute;
+    border-radius: 50%;
+    filter: blur(1px);
+    opacity: 0.55;
+  }
+  .bit.b1  { width: 14px; height: 14px; background: #e8b89a; top: 12%;  left: 8%;   animation: drift1 22s ease-in-out infinite; }
+  .bit.b2  { width: 22px; height: 22px; background: #b6c6d9; top: 22%;  left: 88%;  animation: drift2 28s ease-in-out infinite; }
+  .bit.b3  { width: 10px; height: 10px; background: #c9b89a; top: 70%;  left: 6%;   animation: drift3 19s ease-in-out infinite; }
+  .bit.b4  { width: 28px; height: 28px; background: #d9c4e0; top: 82%;  left: 80%;  animation: drift1 32s ease-in-out infinite; animation-delay: -8s; }
+  .bit.b5  { width: 12px; height: 12px; background: #a8c4a4; top: 48%;  left: 92%;  animation: drift2 24s ease-in-out infinite; animation-delay: -5s; }
+  .bit.b6  { width: 18px; height: 18px; background: #e0a890; top: 38%;  left: 4%;   animation: drift3 26s ease-in-out infinite; animation-delay: -12s; }
+  .bit.b7  { width: 8px;  height: 8px;  background: #b6c6d9; top: 88%;  left: 22%;  animation: drift1 18s ease-in-out infinite; animation-delay: -3s; }
+  .bit.b8  { width: 16px; height: 16px; background: #d4c4a0; top: 8%;   left: 48%;  animation: drift2 30s ease-in-out infinite; animation-delay: -10s; }
+  .bit.b9  { width: 20px; height: 20px; background: #c4b0d4; top: 92%;  left: 52%;  animation: drift3 25s ease-in-out infinite; animation-delay: -7s; }
+  .bit.b10 { width: 10px; height: 10px; background: #e8b89a; top: 56%;  left: 2%;   animation: drift1 21s ease-in-out infinite; animation-delay: -14s; }
+  .bit.b11 { width: 14px; height: 14px; background: #a8c4a4; top: 14%;  left: 70%;  animation: drift2 27s ease-in-out infinite; animation-delay: -6s; }
+  .bit.b12 { width: 24px; height: 24px; background: #b6c6d9; top: 64%;  left: 96%;  animation: drift3 33s ease-in-out infinite; animation-delay: -16s; }
+
+  @keyframes drift1 {
+    0%, 100% { transform: translate(0, 0); }
+    25%      { transform: translate(40px, -30px); }
+    50%      { transform: translate(-20px, -50px); }
+    75%      { transform: translate(-50px, 20px); }
+  }
+  @keyframes drift2 {
+    0%, 100% { transform: translate(0, 0); }
+    33%      { transform: translate(-40px, 30px); }
+    66%      { transform: translate(30px, 50px); }
+  }
+  @keyframes drift3 {
+    0%, 100% { transform: translate(0, 0); }
+    20%      { transform: translate(30px, 40px); }
+    40%      { transform: translate(-30px, 20px); }
+    60%      { transform: translate(20px, -40px); }
+    80%      { transform: translate(-20px, -20px); }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .bit { animation: none !important; }
+  }
+
+  .container {
+    position: relative;
+    z-index: 1;
+    max-width: 580px;
+    margin: 64px auto;
+    padding: 48px 48px 60px;
+    background: var(--card);
+    border-radius: 14px;
+    box-shadow:
+      0 1px 2px rgba(0, 0, 0, 0.04),
+      0 8px 24px rgba(60, 40, 20, 0.06),
+      0 24px 64px rgba(60, 40, 20, 0.08);
+  }
+
+  header h1 {
+    font-size: 32px;
+    font-weight: 600;
+    margin: 0 0 4px;
+    letter-spacing: -0.01em;
+  }
+  header .role {
+    color: var(--muted);
+    font-size: 16px;
+    margin: 0 0 24px;
+  }
+  header .bio {
+    font-size: 16px;
+    color: var(--ink);
+    margin: 0 0 16px;
+  }
+  header .links a {
+    color: var(--accent);
+    text-decoration: none;
+    margin-right: 16px;
+    font-size: 15px;
+  }
+  header .links a:hover { text-decoration: underline; }
+
+  section { margin-top: 48px; }
+  h2 {
+    font-size: 14px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--muted);
+    border-bottom: 1px solid var(--rule);
+    padding-bottom: 8px;
+    margin: 0 0 20px;
+  }
+
+  .candidate {
+    padding: 18px 0;
+    border-bottom: 1px solid var(--rule);
+  }
+  .candidate:last-child { border-bottom: none; }
+  .candidate .title {
+    font-size: 17px;
+    font-weight: 600;
+    margin: 0 0 4px;
+  }
+  .candidate .title.clickable {
+    cursor: pointer;
+    user-select: none;
+  }
+  .candidate .title.clickable:hover .profile-code {
+    text-decoration: underline;
+  }
+  .profile-code {
+    color: var(--accent);
+    font-weight: 600;
+  }
+  .candidate .meta {
+    font-size: 14px;
+    color: var(--muted);
+    margin: 0 0 8px;
+  }
+  .candidate .meta span + span::before {
+    content: " · ";
+    margin: 0 4px;
+  }
+  .candidate .summary {
+    font-size: 15px;
+    margin: 0 0 8px;
+    color: #333;
+  }
+  .tags { display: flex; flex-wrap: wrap; gap: 6px; }
+  .tag {
+    font-size: 12px;
+    background: #f1ede4;
+    color: #5a4a30;
+    padding: 2px 8px;
+    border-radius: 4px;
+  }
+  .status {
+    display: inline-block;
+    font-size: 12px;
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-weight: 500;
+    margin-left: 6px;
+  }
+  .status.available { background: #e3f1e3; color: #2d6a2d; }
+  .status.notice    { background: #fdf1d6; color: #8a6a1f; }
+  .status.exclusive { background: #ede3f1; color: #5a3d8a; }
+
+  /* Private reveal panel */
+  .reveal {
+    margin-top: 12px;
+    padding: 12px 14px;
+    background: #faf6ed;
+    border: 1px solid var(--rule);
+    border-radius: 6px;
+    font-size: 14px;
+  }
+  .reveal .empty {
+    margin: 0;
+    color: var(--muted);
+    font-style: italic;
+  }
+  .private-info > div { margin-bottom: 4px; }
+  .private-info > div:last-child { margin-bottom: 0; }
+  .private-info a { color: var(--accent); word-break: break-all; }
+
+  /* Edit form */
+  .edit-grid { display: grid; gap: 10px; }
+  .edit-grid label {
+    display: flex;
+    flex-direction: column;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--muted);
+    gap: 4px;
+  }
+  .edit-grid input[type="text"] {
+    font-size: 14px;
+    padding: 7px 9px;
+    border: 1px solid var(--rule);
+    border-radius: 5px;
+    font-family: inherit;
+    background: white;
+    color: var(--ink);
+    text-transform: none;
+    letter-spacing: 0;
+  }
+  .edit-grid input[type="text"]:focus {
+    outline: none;
+    border-color: var(--accent);
+  }
+  .drop-zone {
+    margin-top: 4px;
+    padding: 16px;
+    border: 2px dashed var(--rule);
+    border-radius: 6px;
+    text-align: center;
+    font-size: 13px;
+    color: var(--muted);
+    cursor: pointer;
+    transition: background 0.15s, border-color 0.15s, color 0.15s;
+  }
+  .drop-zone:hover { border-color: var(--accent); color: var(--accent); }
+  .drop-zone.drag-over { background: #fdf1e6; border-color: var(--accent); color: var(--accent); }
+  .drop-zone.has-file { border-style: solid; color: var(--ink); }
+  .btn-clear-resume {
+    background: none;
+    border: none;
+    font-size: 16px;
+    color: var(--muted);
+    cursor: pointer;
+    padding: 0 4px;
+    margin-left: 4px;
+  }
+  .btn-clear-resume:hover { color: var(--accent); }
+
+  .edit-banner {
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    background: #fdf1d6;
+    border-bottom: 1px solid #e8c98a;
+    color: #5a4720;
+    font-size: 13px;
+    padding: 10px 16px;
+    text-align: center;
+  }
+  .edit-banner a { color: #5a4720; text-decoration: underline; }
+
+  .news-item {
+    display: grid;
+    grid-template-columns: 90px 1fr;
+    gap: 16px;
+    padding: 10px 0;
+    font-size: 15px;
+  }
+  .news-item .date { color: var(--muted); font-size: 14px; }
+
+  footer {
+    margin-top: 64px;
+    padding-top: 24px;
+    border-top: 1px solid var(--rule);
+    color: var(--muted);
+    font-size: 13px;
+  }
+
+  @media (max-width: 600px) {
+    .container {
+      margin: 16px;
+      padding: 32px 22px 44px;
+      border-radius: 8px;
+    }
+    header h1 { font-size: 26px; }
+    .news-item { grid-template-columns: 1fr; gap: 2px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="bits" aria-hidden="true">
+  <div class="bit b1"></div>
+  <div class="bit b2"></div>
+  <div class="bit b3"></div>
+  <div class="bit b4"></div>
+  <div class="bit b5"></div>
+  <div class="bit b6"></div>
+  <div class="bit b7"></div>
+  <div class="bit b8"></div>
+  <div class="bit b9"></div>
+  <div class="bit b10"></div>
+  <div class="bit b11"></div>
+  <div class="bit b12"></div>
+</div>
+
+<div class="container">
+
+  <header>
+    <h1>[Your Name]</h1>
+    <p class="role">Talent Partner · [Your specialism] · [City]</p>
+    <p class="bio">
+      I partner with [type of companies] to place [type of roles]. Below is a snapshot
+      of candidates I'm currently representing. Reach out if any look like a fit for what you're building.
+    </p>
+    <div class="links">
+      <a href="mailto:you@example.com">Email</a>
+      <a href="https://linkedin.com/in/your-handle" target="_blank" rel="noopener">LinkedIn</a>
+      <a href="https://cal.com/your-handle" target="_blank" rel="noopener">Book a call</a>
+    </div>
+  </header>
+
+  <section>
+    <h2>Currently Representing</h2>
+
+    <div class="candidate" data-profile-id="1">
+      <p class="title">
+        <span class="profile-code">Profile 1</span> — Senior ML Engineer — LLM Infrastructure
+        <span class="status available">Available now</span>
+      </p>
+      <p class="meta">
+        <span>9 yrs experience</span>
+        <span>London / Remote (UK)</span>
+        <span>£140k–£165k + equity</span>
+      </p>
+      <p class="summary">
+        Built training infrastructure at a Series C foundation-model lab. Led a team of 4 on distributed
+        training (FSDP, vLLM serving). Looking for a tech-lead role at a smaller, fast-moving team.
+      </p>
+      <div class="tags">
+        <span class="tag">PyTorch</span>
+        <span class="tag">CUDA</span>
+        <span class="tag">vLLM</span>
+        <span class="tag">Distributed training</span>
+        <span class="tag">Tech lead</span>
+      </div>
+      <div class="reveal" hidden></div>
+    </div>
+
+    <div class="candidate" data-profile-id="2">
+      <p class="title">
+        <span class="profile-code">Profile 2</span> — Founding GTM / Sales Lead
+        <span class="status notice">2 weeks notice</span>
+      </p>
+      <p class="meta">
+        <span>11 yrs experience</span>
+        <span>NYC / Hybrid</span>
+        <span>$180k base + uncapped OTE</span>
+      </p>
+      <p class="summary">
+        Took a developer-tools startup from $0 → $8M ARR as employee #3. Strong on enterprise sales motion,
+        prior experience hiring out a 6-person AE team. Wants to do it again from scratch.
+      </p>
+      <div class="tags">
+        <span class="tag">Enterprise sales</span>
+        <span class="tag">Founding hire</span>
+        <span class="tag">Dev tools</span>
+        <span class="tag">0→1</span>
+      </div>
+      <div class="reveal" hidden></div>
+    </div>
+
+    <div class="candidate" data-profile-id="3">
+      <p class="title">
+        <span class="profile-code">Profile 3</span> — Staff Backend Engineer — Payments / Fintech
+        <span class="status exclusive">Exclusive</span>
+      </p>
+      <p class="meta">
+        <span>12 yrs experience</span>
+        <span>Berlin / Remote (EU)</span>
+        <span>€130k–€150k</span>
+      </p>
+      <p class="summary">
+        Ex top-tier payments processor, then staff engineer at a Series B fintech leading the payments
+        platform team. Deep expertise in idempotency, ledger design, and reconciliation.
+      </p>
+      <div class="tags">
+        <span class="tag">Go</span>
+        <span class="tag">PostgreSQL</span>
+        <span class="tag">Payments</span>
+        <span class="tag">Ledger systems</span>
+        <span class="tag">Staff IC</span>
+      </div>
+      <div class="reveal" hidden></div>
+    </div>
+
+    <div class="candidate" data-profile-id="4">
+      <p class="title">
+        <span class="profile-code">Profile 4</span> — Research Scientist — Reinforcement Learning
+        <span class="status available">Available now</span>
+      </p>
+      <p class="meta">
+        <span>PhD + 4 yrs industry</span>
+        <span>SF Bay Area</span>
+        <span>$220k–$260k + equity</span>
+      </p>
+      <p class="summary">
+        PhD from a top-tier university, 3 first-author NeurIPS/ICML papers on RLHF and reward modelling.
+        Looking for a role with strong compute access and freedom to publish.
+      </p>
+      <div class="tags">
+        <span class="tag">RLHF</span>
+        <span class="tag">Reward models</span>
+        <span class="tag">Publishing OK</span>
+        <span class="tag">First-author NeurIPS</span>
+      </div>
+      <div class="reveal" hidden></div>
+    </div>
+
+  </section>
+
+  <section>
+    <h2>Recent Placements</h2>
+    <div class="news-item">
+      <span class="date">Apr 2026</span>
+      <span>Placed a <strong>Director of Engineering</strong> at a Series B AI infrastructure startup.</span>
+    </div>
+    <div class="news-item">
+      <span class="date">Mar 2026</span>
+      <span>Placed a <strong>Founding ML Engineer</strong> at a stealth foundation-model lab.</span>
+    </div>
+    <div class="news-item">
+      <span class="date">Feb 2026</span>
+      <span>Closed two <strong>Senior Frontend Engineers</strong> for a YC-backed developer-tools company.</span>
+    </div>
+  </section>
+
+  <section>
+    <h2>How I Work</h2>
+    <p style="font-size: 15px; color: #333;">
+      I work on a small number of mandates at a time so every candidate gets real preparation,
+      and every client gets a tight shortlist instead of a flood of CVs. Standard placement fee
+      of [X]% of first-year base, with a [N]-month replacement guarantee.
+    </p>
+  </section>
+
+  <footer>
+    Last updated [Month Year] ·
+    <a href="mailto:you@example.com" style="color: var(--muted);">you@example.com</a>
+  </footer>
+
+</div>
+
+<script>
+(function () {
+  const KEY = 'recruiter-candidates-v1';
+  const editMode = new URLSearchParams(location.search).has('edit');
+
+  const read = () => {
+    try { return JSON.parse(localStorage.getItem(KEY) || '{}'); }
+    catch { return {}; }
+  };
+  const write = (data) => localStorage.setItem(KEY, JSON.stringify(data));
+  const getProfile = (id) => read()[id] || {};
+  const setProfile = (id, patch) => {
+    const data = read();
+    data[id] = Object.assign({}, data[id], patch);
+    write(data);
+  };
+
+  const esc = (s) => String(s == null ? '' : s).replace(/[&<>"']/g, c => (
+    { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]
+  ));
+
+  if (editMode) {
+    const banner = document.createElement('div');
+    banner.className = 'edit-banner';
+    banner.innerHTML = '<strong>Edit mode</strong> — entries are saved only to <em>this</em> browser. Share <a href="' + location.pathname + '">the plain URL</a> with clients.';
+    document.body.insertBefore(banner, document.body.firstChild);
+  }
+
+  document.querySelectorAll('.candidate').forEach(card => {
+    const id = card.dataset.profileId;
+    if (!id) return;
+    const reveal = card.querySelector('.reveal');
+    const title = card.querySelector('.title');
+    if (!reveal || !title) return;
+
+    function render() {
+      const p = getProfile(id);
+      const hasData = !!(p.name || p.linkedin || p.resumeData || p.notes);
+
+      if (editMode) {
+        reveal.hidden = false;
+        reveal.innerHTML =
+          '<div class="edit-grid">' +
+            '<label>Name<input type="text" class="f-name" value="' + esc(p.name) + '" placeholder="e.g. Jane Doe"></label>' +
+            '<label>LinkedIn URL<input type="text" class="f-linkedin" value="' + esc(p.linkedin) + '" placeholder="https://linkedin.com/in/..."></label>' +
+            '<label>Private notes<input type="text" class="f-notes" value="' + esc(p.notes) + '" placeholder="Only visible to you"></label>' +
+            '<div class="drop-zone' + (p.resumeName ? ' has-file' : '') + '">' +
+              (p.resumeName
+                ? 'Resume: <strong>' + esc(p.resumeName) + '</strong> <button type="button" class="btn-clear-resume" title="Remove">×</button>'
+                : 'Drop resume here, or click to choose (PDF / DOC)') +
+              '<input type="file" accept=".pdf,.doc,.docx" class="f-file" hidden>' +
+            '</div>' +
+          '</div>';
+
+        reveal.querySelector('.f-name').addEventListener('input', e => setProfile(id, { name: e.target.value }));
+        reveal.querySelector('.f-linkedin').addEventListener('input', e => setProfile(id, { linkedin: e.target.value }));
+        reveal.querySelector('.f-notes').addEventListener('input', e => setProfile(id, { notes: e.target.value }));
+
+        const dz = reveal.querySelector('.drop-zone');
+        const fileInput = reveal.querySelector('.f-file');
+        const clearBtn = reveal.querySelector('.btn-clear-resume');
+
+        if (clearBtn) {
+          clearBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            setProfile(id, { resumeName: '', resumeData: '' });
+            render();
+          });
+        }
+
+        dz.addEventListener('click', (e) => {
+          if (e.target === clearBtn) return;
+          fileInput.click();
+        });
+        fileInput.addEventListener('change', e => {
+          if (e.target.files[0]) handleFile(e.target.files[0]);
+        });
+        ['dragenter', 'dragover'].forEach(ev =>
+          dz.addEventListener(ev, e => { e.preventDefault(); dz.classList.add('drag-over'); }));
+        ['dragleave', 'drop'].forEach(ev =>
+          dz.addEventListener(ev, e => { e.preventDefault(); dz.classList.remove('drag-over'); }));
+        dz.addEventListener('drop', e => {
+          if (e.dataTransfer.files[0]) handleFile(e.dataTransfer.files[0]);
+        });
+
+        function handleFile(file) {
+          if (file.size > 5 * 1024 * 1024) {
+            alert('File too large (max 5MB). Use a smaller file or link to it via LinkedIn.');
+            return;
+          }
+          const reader = new FileReader();
+          reader.onload = () => {
+            setProfile(id, { resumeName: file.name, resumeData: reader.result });
+            render();
+          };
+          reader.readAsDataURL(file);
+        }
+
+      } else {
+        // view mode: only make clickable if this browser has data
+        if (hasData) {
+          title.classList.add('clickable');
+          title.setAttribute('role', 'button');
+          title.setAttribute('tabindex', '0');
+          let html = '<div class="private-info">';
+          if (p.name)     html += '<div><strong>Name:</strong> ' + esc(p.name) + '</div>';
+          if (p.linkedin) html += '<div><strong>LinkedIn:</strong> <a href="' + esc(p.linkedin) + '" target="_blank" rel="noopener">' + esc(p.linkedin) + '</a></div>';
+          if (p.resumeData) html += '<div><strong>Resume:</strong> <a href="' + p.resumeData + '" download="' + esc(p.resumeName || 'resume') + '">' + esc(p.resumeName || 'Download') + '</a></div>';
+          if (p.notes)    html += '<div><strong>Notes:</strong> ' + esc(p.notes) + '</div>';
+          html += '</div>';
+          reveal.innerHTML = html;
+        } else {
+          title.classList.remove('clickable');
+          reveal.innerHTML = '';
+          reveal.hidden = true;
+        }
+      }
+    }
+
+    title.addEventListener('click', () => {
+      if (editMode) return;
+      if (!title.classList.contains('clickable')) return;
+      reveal.hidden = !reveal.hidden;
+    });
+    title.addEventListener('keydown', (e) => {
+      if (editMode) return;
+      if (!title.classList.contains('clickable')) return;
+      if (e.key === 'Enter' || e.key === ' ') {
+        e.preventDefault();
+        reveal.hidden = !reveal.hidden;
+      }
+    });
+
+    render();
+  });
+})();
+</script>
+
+</body>
+</html>
