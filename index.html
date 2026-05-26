@@ -815,8 +815,13 @@
   // What renders. In edit mode we use the draft (local override). In view mode,
   // a client uses published; the owner (whose draft exists locally) sees their draft.
   function getCandidates() {
-    const draft = readJSON(KEY_DRAFT, null);
-    if (draft) return draft;
+    // Only honour the local draft when explicitly in edit mode (?edit=1).
+    // Otherwise always show the published JSON so direct-file edits propagate
+    // even if the owner has a stale draft in localStorage.
+    if (editMode) {
+      const draft = readJSON(KEY_DRAFT, null);
+      if (draft) return draft;
+    }
     return getPublished();
   }
 
