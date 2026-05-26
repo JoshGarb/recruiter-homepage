@@ -356,11 +356,55 @@
   }
   .view-count { margin-left: 4px; color: var(--muted); font-size: 13px; }
 
+  .category-filters {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 18px;
+    margin: 8px 0 28px;
+  }
+  .cat-btn {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 36px 24px;
+    background: var(--surface);
+    border: 1px solid var(--rule);
+    border-radius: 12px;
+    cursor: pointer;
+    font-family: inherit;
+    color: var(--ink);
+    transition: border-color 0.15s ease, transform 0.15s ease, box-shadow 0.15s ease, background 0.15s ease;
+  }
+  .cat-btn:hover {
+    border-color: var(--accent);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 14px rgba(184, 92, 42, 0.10);
+  }
+  .cat-btn.active {
+    background: var(--accent);
+    color: #fffaf3;
+    border-color: var(--accent);
+  }
+  .cat-btn.active .cat-hint { color: rgba(255, 250, 243, 0.85); }
+  .cat-btn .cat-label { font-size: 22px; font-weight: 600; letter-spacing: -0.01em; }
+  .cat-btn .cat-count { font-size: 13px; color: var(--muted); margin-top: 6px; }
+  .cat-btn.active .cat-count { color: rgba(255, 250, 243, 0.85); }
+  .cat-prompt {
+    margin: 8px 0 0;
+    color: var(--muted);
+    font-size: 14px;
+    font-style: italic;
+    text-align: center;
+  }
+
   @media (max-width: 720px) {
     .container { width: auto; margin: 16px; padding: 32px 22px 44px; border-radius: 8px; }
     header h1 { font-size: 26px; }
     .news-item { grid-template-columns: 1fr; gap: 2px; }
     .add-form .grid, .priv-edit-grid { grid-template-columns: 1fr; }
+    .category-filters { grid-template-columns: 1fr; }
+    .cat-btn { padding: 24px 16px; }
   }
 </style>
 </head>
@@ -382,8 +426,7 @@
       I work with US startups, from stealth to Series C, at the frontier of world models research.
       Whether you're building autonomous vehicles, humanoid robotics, reinforcement learning, or video generation,
       I place research scientists and applied engineers into the teams shaping those problems.
-      Below is a snapshot of candidates I'm currently representing. Reach out if anyone looks like a fit
-      for what you're building.
+      Pick a track below to see candidates I'm currently representing.
     </p>
     <div class="links">
       <a href="https://github.com/JoshGarb" target="_blank" rel="noopener">GitHub</a>
@@ -395,8 +438,19 @@
 
   <section>
     <h2>Currently Representing</h2>
+    <div class="category-filters">
+      <button type="button" class="cat-btn" data-cat="robotics">
+        <span class="cat-label">Robotics</span>
+        <span class="cat-count" data-count-for="robotics"></span>
+      </button>
+      <button type="button" class="cat-btn" data-cat="video">
+        <span class="cat-label">Video Generation</span>
+        <span class="cat-count" data-count-for="video"></span>
+      </button>
+    </div>
+    <p id="cat-prompt" class="cat-prompt">Pick a track to see candidates.</p>
     <div id="candidates-list"></div>
-    <p id="candidates-empty" class="empty-section">No candidates currently being represented.</p>
+    <p id="candidates-empty" class="empty-section" hidden>No candidates currently being represented.</p>
     <div id="edit-controls" class="edit-controls" hidden>
       <button type="button" class="btn primary" id="btn-add">+ Add candidate</button>
       <button type="button" class="btn" id="btn-auto-setup">Setup auto-publish</button>
@@ -476,6 +530,15 @@
   </section>
 
   <section>
+    <h2>How I Work</h2>
+    <p style="font-size: 15px; color: #333;">
+      I work on a small number of mandates at a time so every candidate gets real preparation,
+      and every client gets a tight shortlist instead of a flood of CVs. Standard placement fee
+      with a replacement guarantee.
+    </p>
+  </section>
+
+  <section>
     <h2>Recent Placements</h2>
     <p style="font-size: 15px; color: #333; margin: 0 0 20px;">
       Eight hires across Series A world-models startups in the last six months.
@@ -490,15 +553,6 @@
       <li>Junior Research Engineer · Robotics · Zurich</li>
       <li>Junior Research Engineer · Video Generation · Zurich</li>
     </ul>
-  </section>
-
-  <section>
-    <h2>How I Work</h2>
-    <p style="font-size: 15px; color: #333;">
-      I work on a small number of mandates at a time so every candidate gets real preparation,
-      and every client gets a tight shortlist instead of a flood of CVs. Standard placement fee
-      with a replacement guarantee.
-    </p>
   </section>
 
   <footer>
@@ -604,15 +658,52 @@
   }
 
   // ---------- render ----------
+  const ROBOTICS_TAGS = ['robotic', 'rl', 'reinforcement', 'world', 'humanoid', 'embodied', 'physical ai', 'agent'];
+  const VIDEO_TAGS = ['video', 'image', 'generation', 'generative', 'diffusion', 't2v', 't2i'];
+  function categoryMatch(specialism, cat) {
+    const s = (specialism || '').toLowerCase();
+    if (!cat || !s) return !cat;
+    const tags = cat === 'robotics' ? ROBOTICS_TAGS : cat === 'video' ? VIDEO_TAGS : [];
+    return tags.some(t => s.includes(t));
+  }
+
+  let activeCategory = null;
+
   function render() {
     const list = document.getElementById('candidates-list');
     const empty = document.getElementById('candidates-empty');
+    const prompt = document.getElementById('cat-prompt');
     list.innerHTML = '';
 
     const candidates = [...getCandidates()].sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
-    empty.hidden = candidates.length > 0;
 
-    candidates.forEach((c, i) => {
+    // Update category counts
+    const roboticsCount = candidates.filter(c => categoryMatch(c.specialism, 'robotics')).length;
+    const videoCount = candidates.filter(c => categoryMatch(c.specialism, 'video')).length;
+    const rEl = document.querySelector('[data-count-for="robotics"]');
+    const vEl = document.querySelector('[data-count-for="video"]');
+    if (rEl) rEl.textContent = roboticsCount === 1 ? '1 candidate' : roboticsCount + ' candidates';
+    if (vEl) vEl.textContent = videoCount === 1 ? '1 candidate' : videoCount + ' candidates';
+
+    // Sync button active state
+    document.querySelectorAll('.cat-btn').forEach(btn => {
+      btn.classList.toggle('active', btn.dataset.cat === activeCategory);
+    });
+
+    if (!activeCategory) {
+      empty.hidden = true;
+      if (prompt) prompt.hidden = candidates.length === 0;
+      return;
+    }
+    if (prompt) prompt.hidden = true;
+
+    const filtered = candidates.filter(c => categoryMatch(c.specialism, activeCategory));
+    empty.hidden = filtered.length > 0;
+    if (filtered.length === 0) {
+      empty.textContent = 'No candidates in this track right now.';
+    }
+
+    filtered.forEach((c, i) => {
       const profileNum = i + 1;
       const card = document.createElement('div');
       card.className = 'candidate';
@@ -1155,6 +1246,14 @@
     document.getElementById('btn-auto-setup').addEventListener('click', showAutoSetupModal);
     document.getElementById('btn-publish-all').addEventListener('click', publishAllNow);
   }
+
+  document.querySelectorAll('.cat-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const cat = btn.dataset.cat;
+      activeCategory = activeCategory === cat ? null : cat;
+      render();
+    });
+  });
 
   render();
 })();
