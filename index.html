@@ -1012,12 +1012,9 @@
             '</div>' +
           '</div>' +
           '<div class="contact-options" hidden style="margin-top:10px;">' +
-            '<p class="contact-prompt">How would you like to reach out?</p>' +
             '<div class="contact-actions">' +
-              '<a class="contact-cta" data-contact="email" href="' + mailtoUrl + '">Email</a>' +
-              '<a class="contact-cta secondary" data-contact="slack" href="' + SLACK_URL + '" target="_blank" rel="noopener">Slack</a>' +
+              '<a class="contact-cta" data-contact="email" href="' + mailtoUrl + '">Email Josh</a>' +
             '</div>' +
-            '<p class="contact-prompt" data-contact-hint hidden style="margin-top:8px;font-size:12px;">Message copied — paste into Slack.</p>' +
           '</div>' +
         '</div>';
       card.dataset.contactMessage = messageBody;
@@ -1212,21 +1209,6 @@
         });
       });
 
-      const slackBtn = card.querySelector('[data-contact="slack"]');
-      const hintEl = card.querySelector('[data-contact-hint]');
-      if (slackBtn) {
-        slackBtn.addEventListener('click', async (e) => {
-          e.stopPropagation();
-          const msg = card.dataset.contactMessage || '';
-          try {
-            await navigator.clipboard.writeText(msg);
-            if (hintEl) {
-              hintEl.hidden = false;
-              setTimeout(() => { if (hintEl) hintEl.hidden = true; }, 4000);
-            }
-          } catch {}
-        });
-      }
       const emailBtn = card.querySelector('[data-contact="email"]');
       if (emailBtn) {
         emailBtn.addEventListener('click', (e) => e.stopPropagation());
