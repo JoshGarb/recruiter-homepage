@@ -108,6 +108,51 @@
     margin: 0 0 20px;
   }
 
+  body[data-view="category"] .candidate:not(.is-editable) {
+    cursor: pointer;
+    transition: border-color 0.15s ease, transform 0.15s ease, box-shadow 0.15s ease;
+  }
+  body[data-view="category"] .candidate:not(.is-editable):hover {
+    border-color: var(--accent);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 16px rgba(184, 92, 42, 0.08);
+  }
+  .reveal-contact {
+    margin-top: 14px;
+    padding-top: 14px;
+    border-top: 1px dashed var(--rule);
+  }
+  .contact-prompt {
+    font-size: 14px;
+    color: var(--muted);
+    margin: 0 0 10px;
+  }
+  .contact-actions {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+  }
+  .contact-cta {
+    display: inline-block;
+    padding: 8px 14px;
+    background: var(--accent);
+    color: #fffaf3;
+    border-radius: 6px;
+    font-size: 14px;
+    font-weight: 500;
+    text-decoration: none;
+    border: none;
+    cursor: pointer;
+    font-family: inherit;
+    transition: opacity 0.15s ease;
+  }
+  .contact-cta:hover { opacity: 0.9; }
+  .contact-cta.secondary {
+    background: var(--surface);
+    color: var(--accent);
+    border: 1px solid var(--accent);
+  }
+
   .candidate {
     padding: 18px 0;
     border-bottom: 1px solid var(--rule);
@@ -704,6 +749,10 @@
   }
 
   // ---------- render ----------
+  // Swap this URL for your actual Slack contact (workspace profile or Connect invite link).
+  const SLACK_URL = 'https://join.slack.com/share/REPLACE-ME';
+  const EMAIL_ADDR = 'josh@thisisgrowth.io';
+
   const ROBOTICS_TAGS = ['robotic', 'rl', 'reinforcement', 'world', 'humanoid', 'embodied', 'physical ai', 'agent'];
   const VIDEO_TAGS = ['video', 'image', 'generation', 'generative', 'diffusion', 't2v', 't2i'];
   function categoryMatch(specialism, cat) {
@@ -809,11 +858,30 @@
       const metaBits = [fmtYears(c.years), c.country, fmtCites(c.citations)].filter(Boolean)
         .map(x => '<span>' + esc(x) + '</span>').join('');
 
+      const contactSubject = encodeURIComponent('Interested in Profile ' + profileNum);
+      const contactBlock = editMode ? '' :
+        '<div class="reveal-contact" hidden>' +
+          '<p class="contact-prompt">Interested in Profile ' + profileNum + '?</p>' +
+          '<div class="contact-actions">' +
+            '<button type="button" class="contact-cta" data-act="interested">I\'m interested</button>' +
+          '</div>' +
+          '<div class="contact-options" hidden style="margin-top:10px;">' +
+            '<p class="contact-prompt">How would you like to reach out?</p>' +
+            '<div class="contact-actions">' +
+              '<a class="contact-cta" href="mailto:' + EMAIL_ADDR + '?subject=' + contactSubject + '">Email Josh</a>' +
+              '<a class="contact-cta secondary" href="' + SLACK_URL + '" target="_blank" rel="noopener">DM on Slack</a>' +
+            '</div>' +
+          '</div>' +
+        '</div>';
+
+      if (editMode) card.classList.add('is-editable');
+
       card.innerHTML =
         '<p class="title">' + titleBits + statusHtml + unpubBadge + relocateBadge + '</p>' +
         (metaBits ? '<p class="meta">' + metaBits + '</p>' : '') +
         (c.description ? '<p class="summary">' + esc(c.description) + '</p>' : '') +
         '<div class="reveal" hidden></div>' +
+        contactBlock +
         (editMode
           ? '<div class="card-actions">'
           +   '<button type="button" class="btn" data-act="edit">Edit private info</button>'
@@ -905,6 +973,29 @@
       if (!title.classList.contains('clickable')) return;
       if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); reveal.hidden = !reveal.hidden; }
     });
+
+    if (!editMode) {
+      const contactReveal = card.querySelector('.reveal-contact');
+      const interestedBtn = card.querySelector('[data-act="interested"]');
+      const contactOptions = card.querySelector('.contact-options');
+      if (contactReveal) {
+        card.addEventListener('click', (e) => {
+          if (e.target.closest('a, button')) return;
+          contactReveal.hidden = !contactReveal.hidden;
+          if (contactReveal.hidden) {
+            if (contactOptions) contactOptions.hidden = true;
+            if (interestedBtn) interestedBtn.parentElement.parentElement.style.display = '';
+          }
+        });
+      }
+      if (interestedBtn) {
+        interestedBtn.addEventListener('click', (e) => {
+          e.stopPropagation();
+          if (contactOptions) contactOptions.hidden = false;
+          interestedBtn.parentElement.parentElement.style.display = 'none';
+        });
+      }
+    }
 
     if (editMode) {
       card.querySelector('[data-act="delete"]').addEventListener('click', () => {
