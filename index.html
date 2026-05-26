@@ -153,6 +153,12 @@
     border: 1px solid var(--accent);
   }
 
+  .candidate.profile-highlight {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px rgba(184, 92, 42, 0.18);
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+  }
+
   .candidate {
     padding: 18px 0;
     border-bottom: 1px solid var(--rule);
@@ -883,8 +889,9 @@
   }
 
   function syncFromHash() {
-    const h = (window.location.hash || '').replace(/^#/, '');
-    const cat = HASH_TO_CAT[h] || null;
+    const raw = (window.location.hash || '').replace(/^#/, '');
+    const [catPart, profileId] = raw.split('/');
+    const cat = HASH_TO_CAT[catPart] || null;
     activeCategory = cat;
     document.body.dataset.view = cat ? 'category' : 'home';
     if (cat) {
@@ -892,6 +899,16 @@
       if (titleEl) titleEl.textContent = CAT_TO_TITLE[cat];
     }
     render();
+    if (profileId) {
+      setTimeout(() => {
+        const card = document.getElementById('profile-' + profileId);
+        if (card) {
+          card.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          card.classList.add('profile-highlight');
+          setTimeout(() => card.classList.remove('profile-highlight'), 2800);
+        }
+      }, 60);
+    }
   }
 
   function render() {
@@ -934,6 +951,7 @@
       const card = document.createElement('div');
       card.className = 'candidate';
       card.dataset.candidateId = c.id;
+      card.id = 'profile-' + c.id;
 
       const titleBits = [
         '<span class="profile-code">Profile ' + profileNum + '</span>',
@@ -956,7 +974,15 @@
       const metaBits = [fmtYears(c.years), c.country, fmtCites(c.citations)].filter(Boolean)
         .map(x => '<span>' + esc(x) + '</span>').join('');
 
-      const contactSubject = encodeURIComponent('Interested in Profile ' + profileNum);
+      const categoryHash = activeCategory ? CAT_TO_HASH[activeCategory]
+        : (categoryMatch(c.specialism, 'robotics') ? 'robotics' : 'video-generation');
+      const profileUrl = window.location.origin + window.location.pathname + '#' + categoryHash + '/' + c.id;
+      const messageBody = "Hey Josh,\n\nI'm [Your name] from [Your company]. I'm interested in speaking with one of your candidates:\n" + profileUrl + "\n\nThanks!";
+      const subject = 'Interested in a candidate';
+      const mailtoUrl = 'mailto:' + EMAIL_ADDR
+        + '?subject=' + encodeURIComponent(subject)
+        + '&body=' + encodeURIComponent(messageBody);
+
       const contactBlock = editMode ? '' :
         '<div class="reveal-contact" hidden>' +
           '<p class="contact-prompt">Interested in Profile ' + profileNum + '?</p>' +
@@ -966,11 +992,13 @@
           '<div class="contact-options" hidden style="margin-top:10px;">' +
             '<p class="contact-prompt">How would you like to reach out?</p>' +
             '<div class="contact-actions">' +
-              '<a class="contact-cta" href="mailto:' + EMAIL_ADDR + '?subject=' + contactSubject + '">Email</a>' +
-              '<a class="contact-cta secondary" href="' + SLACK_URL + '" target="_blank" rel="noopener">Slack</a>' +
+              '<a class="contact-cta" data-contact="email" href="' + mailtoUrl + '">Email</a>' +
+              '<a class="contact-cta secondary" data-contact="slack" href="' + SLACK_URL + '" target="_blank" rel="noopener">Slack</a>' +
             '</div>' +
+            '<p class="contact-prompt" data-contact-hint hidden style="margin-top:8px;font-size:12px;">Message copied — paste into Slack.</p>' +
           '</div>' +
         '</div>';
+      card.dataset.contactMessage = messageBody;
 
       if (editMode) card.classList.add('is-editable');
 
@@ -1099,6 +1127,26 @@
           if (initialActions) initialActions.style.display = 'none';
           if (contactOptions) contactOptions.hidden = false;
         });
+      }
+
+      const slackBtn = card.querySelector('[data-contact="slack"]');
+      const hintEl = card.querySelector('[data-contact-hint]');
+      if (slackBtn) {
+        slackBtn.addEventListener('click', async (e) => {
+          e.stopPropagation();
+          const msg = card.dataset.contactMessage || '';
+          try {
+            await navigator.clipboard.writeText(msg);
+            if (hintEl) {
+              hintEl.hidden = false;
+              setTimeout(() => { if (hintEl) hintEl.hidden = true; }, 4000);
+            }
+          } catch {}
+        });
+      }
+      const emailBtn = card.querySelector('[data-contact="email"]');
+      if (emailBtn) {
+        emailBtn.addEventListener('click', (e) => e.stopPropagation());
       }
     }
 
