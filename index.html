@@ -133,6 +133,7 @@
   .status.exclusive    { background: #ede3f1; color: #5a3d8a; }
   .status.interviewing { background: #e3ecf1; color: #2d5a8a; }
   .status.unpublished  { background: #f1e3e3; color: #8a2d2d; }
+  .status.relocate     { background: #fdebd9; color: #b85c2a; }
 
   .empty-section {
     color: var(--muted);
@@ -410,18 +411,24 @@
   .back-link {
     display: inline-flex;
     align-items: center;
-    gap: 6px;
+    gap: 8px;
     color: var(--accent);
     text-decoration: none;
-    font-size: 14px;
-    margin-bottom: 8px;
-    background: none;
-    border: none;
+    font-size: 16px;
+    font-weight: 500;
+    margin-bottom: 18px;
+    background: var(--surface);
+    border: 1px solid var(--rule);
     cursor: pointer;
     font-family: inherit;
-    padding: 0;
+    padding: 8px 16px;
+    border-radius: 8px;
+    transition: border-color 0.15s ease, background 0.15s ease;
   }
-  .back-link:hover { text-decoration: underline; }
+  .back-link:hover {
+    border-color: var(--accent);
+    background: var(--card);
+  }
 
   /* Toggle home vs category page views */
   body[data-view="category"] .home-only { display: none; }
@@ -795,6 +802,9 @@
       const unpubBadge = (editMode && !isPublished(c.id))
         ? '<span class="status unpublished" title="Not yet on live site">Unpublished</span>'
         : '';
+      const relocateBadge = (c.country && !/united states|^usa$|^us$/i.test(c.country.trim()))
+        ? '<span class="status relocate">Open to relocate</span>'
+        : '';
 
       const fmtYears = v => !v ? '' : /year|yr|phd|month/i.test(v) ? v : v + ' years experience';
       const fmtCites = v => !v ? '' : /citation/i.test(v) ? v : v + ' citations';
@@ -802,7 +812,7 @@
         .map(x => '<span>' + esc(x) + '</span>').join('');
 
       card.innerHTML =
-        '<p class="title">' + titleBits + statusHtml + unpubBadge + '</p>' +
+        '<p class="title">' + titleBits + statusHtml + unpubBadge + relocateBadge + '</p>' +
         (metaBits ? '<p class="meta">' + metaBits + '</p>' : '') +
         (c.description ? '<p class="summary">' + esc(c.description) + '</p>' : '') +
         '<div class="reveal" hidden></div>' +
