@@ -158,6 +158,20 @@
     box-shadow: 0 0 0 3px rgba(184, 92, 42, 0.18);
     transition: border-color 0.2s ease, box-shadow 0.2s ease;
   }
+  .contact-form input {
+    display: block;
+    width: 100%;
+    padding: 8px 10px;
+    border: 1px solid var(--rule);
+    border-radius: 6px;
+    background: var(--card);
+    font-size: 14px;
+    font-family: inherit;
+    margin-bottom: 8px;
+    color: var(--ink);
+  }
+  .contact-form input:focus { outline: none; border-color: var(--accent); }
+  .contact-form .contact-prompt { margin-bottom: 8px; }
 
   .candidate {
     padding: 18px 0;
@@ -989,6 +1003,14 @@
           '<div class="contact-actions">' +
             '<button type="button" class="contact-cta" data-act="interested">I\'m interested</button>' +
           '</div>' +
+          '<div class="contact-form" hidden style="margin-top:12px;">' +
+            '<p class="contact-prompt">So Josh knows who\'s reaching out:</p>' +
+            '<input type="text" placeholder="Your name" data-contact-field="name" autocomplete="name">' +
+            '<input type="text" placeholder="Your company" data-contact-field="company" autocomplete="organization">' +
+            '<div class="contact-actions">' +
+              '<button type="button" class="contact-cta" data-act="continue">Continue</button>' +
+            '</div>' +
+          '</div>' +
           '<div class="contact-options" hidden style="margin-top:10px;">' +
             '<p class="contact-prompt">How would you like to reach out?</p>' +
             '<div class="contact-actions">' +
@@ -999,6 +1021,7 @@
           '</div>' +
         '</div>';
       card.dataset.contactMessage = messageBody;
+      card.dataset.profileUrl = profileUrl;
 
       if (editMode) card.classList.add('is-editable');
 
@@ -1109,6 +1132,8 @@
 
       function resetContactStage() {
         if (contactOptions) contactOptions.hidden = true;
+        const form = card.querySelector('.contact-form');
+        if (form) form.hidden = true;
         if (initialPrompt) initialPrompt.style.display = '';
         if (initialActions) initialActions.style.display = '';
       }
@@ -1120,14 +1145,51 @@
           if (contactReveal.hidden) resetContactStage();
         });
       }
+      const contactForm = card.querySelector('.contact-form');
+      const continueBtn = card.querySelector('[data-act="continue"]');
+      const nameInput = card.querySelector('[data-contact-field="name"]');
+      const companyInput = card.querySelector('[data-contact-field="company"]');
+      const emailLink = card.querySelector('[data-contact="email"]');
+
       if (interestedBtn) {
         interestedBtn.addEventListener('click', (e) => {
           e.stopPropagation();
           if (initialPrompt) initialPrompt.style.display = 'none';
           if (initialActions) initialActions.style.display = 'none';
-          if (contactOptions) contactOptions.hidden = false;
+          if (contactForm) contactForm.hidden = false;
+          if (nameInput) setTimeout(() => nameInput.focus(), 50);
         });
       }
+
+      function rebuildMessage() {
+        const name = (nameInput ? nameInput.value.trim() : '') || '[Your name]';
+        const company = (companyInput ? companyInput.value.trim() : '') || '[Your company]';
+        const url = card.dataset.profileUrl || '';
+        const msg = "Hey Josh,\n\nI'm " + name + " from " + company + ". I'm interested in speaking with one of your candidates:\n" + url + "\n\nThanks!";
+        card.dataset.contactMessage = msg;
+        if (emailLink) {
+          emailLink.href = 'mailto:' + EMAIL_ADDR
+            + '?subject=' + encodeURIComponent('Interested in a candidate')
+            + '&body=' + encodeURIComponent(msg);
+        }
+      }
+
+      function goToOptions() {
+        rebuildMessage();
+        if (contactForm) contactForm.hidden = true;
+        if (contactOptions) contactOptions.hidden = false;
+      }
+
+      if (continueBtn) {
+        continueBtn.addEventListener('click', (e) => { e.stopPropagation(); goToOptions(); });
+      }
+      [nameInput, companyInput].forEach(inp => {
+        if (!inp) return;
+        inp.addEventListener('click', (e) => e.stopPropagation());
+        inp.addEventListener('keydown', (e) => {
+          if (e.key === 'Enter') { e.preventDefault(); goToOptions(); }
+        });
+      });
 
       const slackBtn = card.querySelector('[data-contact="slack"]');
       const hintEl = card.querySelector('[data-contact-hint]');
