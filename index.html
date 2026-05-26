@@ -977,21 +977,28 @@
       const contactReveal = card.querySelector('.reveal-contact');
       const interestedBtn = card.querySelector('[data-act="interested"]');
       const contactOptions = card.querySelector('.contact-options');
+      const initialPrompt = contactReveal ? contactReveal.querySelector(':scope > .contact-prompt') : null;
+      const initialActions = interestedBtn ? interestedBtn.parentElement : null;
+
+      function resetContactStage() {
+        if (contactOptions) contactOptions.hidden = true;
+        if (initialPrompt) initialPrompt.style.display = '';
+        if (initialActions) initialActions.style.display = '';
+      }
+
       if (contactReveal) {
         card.addEventListener('click', (e) => {
           if (e.target.closest('a, button')) return;
           contactReveal.hidden = !contactReveal.hidden;
-          if (contactReveal.hidden) {
-            if (contactOptions) contactOptions.hidden = true;
-            if (interestedBtn) interestedBtn.parentElement.parentElement.style.display = '';
-          }
+          if (contactReveal.hidden) resetContactStage();
         });
       }
       if (interestedBtn) {
         interestedBtn.addEventListener('click', (e) => {
           e.stopPropagation();
+          if (initialPrompt) initialPrompt.style.display = 'none';
+          if (initialActions) initialActions.style.display = 'none';
           if (contactOptions) contactOptions.hidden = false;
-          interestedBtn.parentElement.parentElement.style.display = 'none';
         });
       }
     }
