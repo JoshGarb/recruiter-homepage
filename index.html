@@ -1174,8 +1174,29 @@
         }
       }
 
+      async function notifyJosh() {
+        const name = (nameInput ? nameInput.value.trim() : '') || 'Anonymous visitor';
+        const company = (companyInput ? companyInput.value.trim() : '') || 'unknown company';
+        const url = card.dataset.profileUrl || '';
+        try {
+          await fetch('https://formsubmit.co/ajax/' + EMAIL_ADDR, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+            body: JSON.stringify({
+              _subject: 'Interest: ' + name + ' from ' + company,
+              _template: 'box',
+              _captcha: 'false',
+              name: name,
+              company: company,
+              profile_link: url,
+            }),
+          });
+        } catch {}
+      }
+
       function goToOptions() {
         rebuildMessage();
+        notifyJosh();
         if (contactForm) contactForm.hidden = true;
         if (contactOptions) contactOptions.hidden = false;
       }
