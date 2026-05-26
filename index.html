@@ -397,6 +397,37 @@
     font-style: italic;
     text-align: center;
   }
+  .category-page-header {
+    margin: 16px 0 28px;
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 16px;
+    flex-wrap: wrap;
+  }
+  .category-page-header h2 { margin: 0; font-size: 26px; }
+  .category-page-header .cat-page-meta { color: var(--muted); font-size: 14px; }
+  .back-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    color: var(--accent);
+    text-decoration: none;
+    font-size: 14px;
+    margin-bottom: 8px;
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-family: inherit;
+    padding: 0;
+  }
+  .back-link:hover { text-decoration: underline; }
+
+  /* Toggle home vs category page views */
+  body[data-view="category"] .home-only { display: none; }
+  body[data-view="home"] .category-only { display: none; }
+  body[data-view="category"] header .bio,
+  body[data-view="category"] header .links { display: none; }
 
   @media (max-width: 720px) {
     .container { width: auto; margin: 16px; padding: 32px 22px 44px; border-radius: 8px; }
@@ -437,18 +468,28 @@
   </header>
 
   <section>
-    <h2>Currently Representing</h2>
-    <div class="category-filters">
-      <button type="button" class="cat-btn" data-cat="robotics">
-        <span class="cat-label">Robotics</span>
-        <span class="cat-count" data-count-for="robotics"></span>
-      </button>
-      <button type="button" class="cat-btn" data-cat="video">
-        <span class="cat-label">Video Generation</span>
-        <span class="cat-count" data-count-for="video"></span>
-      </button>
+    <div class="home-only">
+      <h2>Currently Representing</h2>
+      <div class="category-filters">
+        <button type="button" class="cat-btn" data-cat="robotics">
+          <span class="cat-label">Robotics</span>
+          <span class="cat-count" data-count-for="robotics"></span>
+        </button>
+        <button type="button" class="cat-btn" data-cat="video">
+          <span class="cat-label">Video Generation</span>
+          <span class="cat-count" data-count-for="video"></span>
+        </button>
+      </div>
     </div>
-    <p id="cat-prompt" class="cat-prompt">Pick a track to see candidates.</p>
+
+    <div class="category-only">
+      <button type="button" class="back-link" id="back-link">← Back to overview</button>
+      <div class="category-page-header">
+        <h2 id="cat-page-title">Robotics</h2>
+        <span class="cat-page-meta" id="cat-page-meta"></span>
+      </div>
+    </div>
+
     <div id="candidates-list"></div>
     <p id="candidates-empty" class="empty-section" hidden>No candidates currently being represented.</p>
     <div id="edit-controls" class="edit-controls" hidden>
@@ -529,7 +570,7 @@
 </script>
   </section>
 
-  <section>
+  <section class="home-only">
     <h2>How I Work</h2>
     <p style="font-size: 15px; color: #333;">
       I work on a small number of mandates at a time so every candidate gets real preparation,
@@ -538,7 +579,7 @@
     </p>
   </section>
 
-  <section>
+  <section class="home-only">
     <h2>Recent Placements</h2>
     <p style="font-size: 15px; color: #333; margin: 0 0 20px;">
       Eight hires across Series A world-models startups in the last six months.
@@ -669,10 +710,41 @@
 
   let activeCategory = null;
 
+  const HASH_TO_CAT = { 'robotics': 'robotics', 'video-generation': 'video', 'video': 'video' };
+  const CAT_TO_HASH = { 'robotics': 'robotics', 'video': 'video-generation' };
+  const CAT_TO_TITLE = { 'robotics': 'Robotics', 'video': 'Video Generation' };
+
+  function setView(cat) {
+    activeCategory = cat || null;
+    document.body.dataset.view = cat ? 'category' : 'home';
+    const newHash = cat ? '#' + CAT_TO_HASH[cat] : '';
+    if (window.location.hash !== newHash) {
+      if (newHash) history.pushState(null, '', newHash);
+      else history.pushState(null, '', window.location.pathname + window.location.search);
+    }
+    if (cat) {
+      const titleEl = document.getElementById('cat-page-title');
+      if (titleEl) titleEl.textContent = CAT_TO_TITLE[cat];
+    }
+    render();
+    window.scrollTo(0, 0);
+  }
+
+  function syncFromHash() {
+    const h = (window.location.hash || '').replace(/^#/, '');
+    const cat = HASH_TO_CAT[h] || null;
+    activeCategory = cat;
+    document.body.dataset.view = cat ? 'category' : 'home';
+    if (cat) {
+      const titleEl = document.getElementById('cat-page-title');
+      if (titleEl) titleEl.textContent = CAT_TO_TITLE[cat];
+    }
+    render();
+  }
+
   function render() {
     const list = document.getElementById('candidates-list');
     const empty = document.getElementById('candidates-empty');
-    const prompt = document.getElementById('cat-prompt');
     list.innerHTML = '';
 
     const candidates = [...getCandidates()].sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
@@ -692,15 +764,17 @@
 
     if (!activeCategory) {
       empty.hidden = true;
-      if (prompt) prompt.hidden = candidates.length === 0;
       return;
     }
-    if (prompt) prompt.hidden = true;
 
     const filtered = candidates.filter(c => categoryMatch(c.specialism, activeCategory));
     empty.hidden = filtered.length > 0;
     if (filtered.length === 0) {
       empty.textContent = 'No candidates in this track right now.';
+    }
+    const metaEl = document.getElementById('cat-page-meta');
+    if (metaEl) {
+      metaEl.textContent = filtered.length === 1 ? '1 candidate' : filtered.length + ' candidates';
     }
 
     filtered.forEach((c, i) => {
@@ -1248,14 +1322,14 @@
   }
 
   document.querySelectorAll('.cat-btn').forEach(btn => {
-    btn.addEventListener('click', () => {
-      const cat = btn.dataset.cat;
-      activeCategory = activeCategory === cat ? null : cat;
-      render();
-    });
+    btn.addEventListener('click', () => setView(btn.dataset.cat));
   });
+  const backLink = document.getElementById('back-link');
+  if (backLink) backLink.addEventListener('click', () => setView(null));
+  window.addEventListener('popstate', syncFromHash);
+  window.addEventListener('hashchange', syncFromHash);
 
-  render();
+  syncFromHash();
 })();
 </script>
 
